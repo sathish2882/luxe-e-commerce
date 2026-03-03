@@ -1,0 +1,73 @@
+
+/*DM Sans - Body*/
+
+@font-face{
+  font-family: "DM Sans";
+  src: url("./assets/fonts/DMSans_18pt-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+@font-face{
+  font-family: "DM Sans";
+  src: url("./assets/fonts/DMSans_18pt-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+@font-face{
+  font-family: "DM Sans";
+  src: url("./assets/fonts/DMSans_18pt-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*Playfair Display - Heading*/
+
+
+@font-face{
+  font-family: "Playfair Display";
+  src: url("./assets/fonts/PlayfairDisplay-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+@font-face{
+  font-family: "Playfair Display";
+  src: url("./assets/fonts/PlayfairDisplay-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import "tailwindcss";
+
+:root {
+  --font-body: "DM Sans",sans-serif;
+  --font-heading: "Playfair Display",serif;
+  --primary-color: rgb(20, 24, 31);
+  --secondary-color: rgb(230, 107, 26);
+}
+
+.body {
+  font-family: var(--font-body);
+  color: var(--primary-color);
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-heading);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
