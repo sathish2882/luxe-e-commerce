@@ -1,3 +1,5 @@
+import { AboutImg } from "../utils/images";
+
 function About() {
   return (
     <section className="my-15 px-8 sm:px-10 xl:px-20">
@@ -7,7 +9,7 @@ function About() {
     
         <div>
           <img
-            src="/about-image.jpg"
+            src={AboutImg}
             alt="about luxe"
             className="rounded-xl shadow-lg w-full object-cover"
           />

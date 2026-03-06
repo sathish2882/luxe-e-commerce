@@ -10,9 +10,10 @@ import {
   SearchInput,
   ProfileView,
   MobileView,
-  Navlink,
   Icons,
 } from "./NavbarStyle";
+
+export const Navlink = ({isActive}:any) => isActive?"text-[var(--secondary-color)] font-medium":"text-[#6b6c6c] font-medium";
 
 function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
