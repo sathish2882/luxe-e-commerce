@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { AboutImg } from "../utils/images";
 
 function About() {
@@ -35,10 +36,11 @@ function About() {
             delivery, and a user-friendly interface, Luxe makes online shopping
             simple and enjoyable.
           </p>
-
-          <button className="w-fit bg-[var(--secondary-color)] text-white px-6 py-2 rounded-3xl hover:bg-orange-500 transition">
+          <Link to="/shop">
+          <button className="w-fit bg-[var(--secondary-color)] text-white px-6 py-2 rounded-3xl hover:bg-orange-500 transition cursor-pointer">
             Explore Products
           </button>
+          </Link>
 
         </div>
 

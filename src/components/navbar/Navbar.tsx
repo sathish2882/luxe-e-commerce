@@ -7,6 +7,7 @@ import { FaRegUser } from "react-icons/fa";
 import { CgShoppingCart } from "react-icons/cg";
 import { Profile } from "../../screens/Profile";
 import { SearchInput, ProfileView, MobileView, Icons, CloseMenu } from "./NavbarStyle";
+import { span } from "framer-motion/client";
 
 export const Navlink = ({ isActive }: any) =>
   isActive
@@ -28,6 +29,8 @@ function Navbar() {
     document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
   }, [isMenuOpen]);
 
+
+  let totalQty = 4
   return (
     <>
       <header className="sticky z-40 top-0 backdrop-blur-md bg-[rgb(249,248,245)]/80">
@@ -70,9 +73,15 @@ function Navbar() {
                 <Profile />
               </div>
             </div>
+
+            <div className="relative">
             <Link to="/cart">
               <CgShoppingCart className={`max-sm:hidden ${Icons}`} />
             </Link>
+               {totalQty > 0 && (
+                <span className="hidden sm:flex absolute md:-top-1 sm:-top-2 md:-right-1 sm:-right-2 bg-orange-500 text-white text-xs w-5 h-5 rounded-full items-center justify-center">{totalQty}</span>
+               )}
+            </div>
           </div>
         </nav>
 
@@ -125,8 +134,10 @@ function Navbar() {
             <NavLink className={Navlink} to="/about" onClick={handleMenu}>
               About
             </NavLink>
-            <NavLink className={Navlink} to="/cart" onClick={handleMenu}>
-              Cart
+            <NavLink className={`${Navlink} flex items-center`} to="/cart" onClick={handleMenu}>
+              Cart {totalQty > 0 && (
+                <span className="sm:hidden flex bg-orange-500 text-white text-xs w-5 h-5 rounded-full items-center justify-center ml-1">{totalQty}</span>
+               )}
             </NavLink>
           </div>
         </div>

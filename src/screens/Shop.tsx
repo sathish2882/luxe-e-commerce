@@ -1,7 +1,7 @@
 import { Button } from 'antd';
 import {motion} from "framer-motion"
 import { useState } from 'react';
-import { allProductsGrid,CardAddToCart } from './home/HomeStyle';
+import { allProductsGrid,CardAddToCart } from './home/homeStyle';
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { ProImg } from '../utils/images';
@@ -81,7 +81,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -108,7 +108,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -137,7 +137,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -164,7 +164,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -193,7 +193,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -222,7 +222,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -249,7 +249,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -276,7 +276,7 @@ function Shop() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
         </motion.div>
