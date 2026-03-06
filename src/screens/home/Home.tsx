@@ -17,17 +17,21 @@ import { motion } from "framer-motion";
 
 const containerVariant = {
   hidden: {},
-  visible: {
+  show: {
     transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
+      staggerChildren: 0.1
+    }
+  }
+}
 
 const cardVariant = {
-  hidden: { opacity: 0, x: 40 },
-  visible: { opacity: 1, x: 0 },
-};
+  hidden: { opacity: 0, y: 40 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+}
 
 console.log(Cookies.get("token"))
 
@@ -37,6 +41,7 @@ function Home() {
   return (
     <>
       <section className={HomeTop}>
+        {/* <div className="loader"></div> */}
         <motion.div
           initial={{ opacity: 0, x: -60 }}
           animate={{ opacity: 1, x: 0 }}
@@ -97,7 +102,7 @@ function Home() {
         <motion.div
           variants={containerVariant}
           initial="hidden"
-          whileInView="visible"
+          whileInView="show"
           viewport={{ once: true }}
           className={PopularGrid}
         >
@@ -232,7 +237,7 @@ function Home() {
         <motion.div
           variants={containerVariant}
           initial="hidden"
-          whileInView="visible"
+          whileInView="show"
           viewport={{ once: true }}
           className={allProductsGrid}
         >

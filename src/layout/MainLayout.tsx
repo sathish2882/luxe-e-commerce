@@ -1,10 +1,12 @@
 import Navbar from "../components/navbar/Navbar";
 import { Outlet } from "react-router-dom";
 import FooterSection from "../components/footer/Footer";
+import ScrollTop from "../components/scroll/ScrollTop";
 
 function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col">
+        <ScrollTop />
         <Navbar />
         <main className="flex-1">
           <Outlet />
