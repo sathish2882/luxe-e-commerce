@@ -136,7 +136,7 @@ function Home() {
                 4.8 (2,341)
               </p>
               <p className="text-md text-[var(--primary-color)] font-medium">
-                $249.99<span className="text-md text-gray-500"> $349.99</span>
+                $249.99<span className="text-md text-gray-500 line-through ml-2"> $349.99</span>
               </p>
             </motion.div>
           </Link>
@@ -164,7 +164,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -193,7 +193,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -220,7 +220,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
         </motion.div>
@@ -270,7 +270,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
 
@@ -298,7 +298,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -327,7 +327,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -354,7 +354,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -383,7 +383,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -412,7 +412,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -439,7 +439,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -466,7 +466,7 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
+              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
         </motion.div>
