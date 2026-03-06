@@ -10,6 +10,8 @@ import Signup from "../screens/auth/Signup";
 import ProtectedRoute from "./ProtectedRoute";
 import ProductDetails from "../screens/ProductDetails";
 import Cart from "../screens/Cart";
+import Orders from "../screens/Orders";
+import NotFound from "../screens/NotFound";
 
 export const router = createHashRouter([
   {
@@ -44,6 +46,10 @@ export const router = createHashRouter([
         path: "/cart",
         element: <Cart />,
       },
+       {
+        path: "/orders",
+        element: <Orders />,
+      },
     ],
   },
 
@@ -58,5 +64,9 @@ export const router = createHashRouter([
   {
     path: "/forgot-password",
     element: <ForgotPassword />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

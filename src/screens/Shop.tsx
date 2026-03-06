@@ -8,17 +8,21 @@ import { ProImg } from '../utils/images';
 
 const containerVariant = {
   hidden: {},
-  visible: {
+  show: {
     transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
+      staggerChildren: 0.1
+    }
+  }
+}
 
 const cardVariant = {
-  hidden: { opacity: 0, x: 40 },
-  visible: { opacity: 1, x: 0 },
-};
+  hidden: { opacity: 0, y: 40 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+}
 
 const products = [
   { id: 1, title: "Headphones", category: "All" },
@@ -47,7 +51,7 @@ function Shop() {
         <motion.div
           variants={containerVariant}
           initial="hidden"
-          whileInView="visible"
+          whileInView="show"
           viewport={{ once: true }}
           className={allProductsGrid}
         >
