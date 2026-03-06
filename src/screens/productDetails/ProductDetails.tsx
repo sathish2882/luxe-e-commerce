@@ -1,11 +1,12 @@
 import { FaArrowLeft } from "react-icons/fa";
-import { ProImg } from "../utils/images";
+import { ProImg } from "../../utils/images";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { Button } from "antd";
 import { FiMinus } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
+import { AddToCart } from "./productDetailsStyle";
 
 function ProductDetails() {
   return (
@@ -50,7 +51,7 @@ function ProductDetails() {
                 <FaPlus />
               </Button>
             </div>
-            <button className="flex items-center text-white justify-center py-2 px-3 bg-[var(--secondary-color)] rounded-3xl w-full">
+            <button className={AddToCart}>
               <CgShoppingCart className="text-lg mr-1 mt-[2px]" />
               Add to Cart
             </button>

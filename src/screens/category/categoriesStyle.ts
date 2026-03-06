@@ -1,1 +1,2 @@
-export const categoryGrid = "grid grid-colds-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+export const CategoryGrid = "grid grid-colds-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+export const CategoryImg = "w-full transition-transform duration-300 group-hover:scale-110 rounded-md"

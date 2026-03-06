@@ -12,11 +12,11 @@ export const userInfoApi = () =>{
 }
 
 export const forgotPasswordApi = (data:FormData) =>{
-    return API.post("/auth/forgot-password",data)
+    return API.post("/forgot-password",data)
 }
 export const verifyOtpApi = (data:FormData) =>{
-    return API.post("/auth/verify-otp",data)
+    return API.post("/verify-otp",data)
 }
 export const resetPasswordApi = (data:FormData) =>{
-    return API.post("/auth/reset-password",data)
+    return API.post("/reset-password",data)
 }

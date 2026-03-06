@@ -1,5 +1,5 @@
-export const ShopNowBtn = "max-md: rounded-3xl w-[150px] h-[45px] border-none bg-[var(--secondary-color)] text-white mb-5 flex items-center justify-center gap-2"
-export const exploreBtn = "rounded-3xl w-[110px] bg-[#fff] h-[45px] text-[#000] border border-1 border-[gray] mb-5"
+export const ShopNowBtn = "max-md: rounded-3xl w-[150px] h-[45px] border-none bg-[var(--secondary-color)] text-white mb-5 flex items-center justify-center gap-2 cursor-pointer"
+export const exploreBtn = "rounded-3xl w-[110px] bg-[#fff] h-[45px] text-[#000] border border-1 border-[gray] mb-5 cursor-pointer"
 export const HomeTop = "bg-[rgb(244,241,235)] flex items-start px-8 sm:px-10 xl:px-20 py-15 gap-9 items-center"
 export const HomeImgInsideContainer = "absolute bottom-12 left-[-30px] bg-white p-4 rounded-xl shadow-md transition-all ease duration-300"
 export const PopularGrid = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 px-8 sm:px-10 xl:px-20 my-10"

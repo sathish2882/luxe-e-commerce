@@ -8,7 +8,7 @@ import Login from "../screens/auth/Login";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import Signup from "../screens/auth/Signup";
 import ProtectedRoute from "./ProtectedRoute";
-import ProductDetails from "../screens/ProductDetails";
+import ProductDetails from "../screens/productDetails/ProductDetails";
 import Cart from "../screens/Cart";
 import Orders from "../screens/Orders";
 import NotFound from "../screens/NotFound";
