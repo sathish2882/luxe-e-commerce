@@ -4,14 +4,11 @@ import FooterSection from "../components/footer/Footer";
 
 function MainLayout() {
   return (
-    <div className="min-h-screen flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main>
+        <main className="flex-1">
           <Outlet />
         </main>
-      </div>
-
       <FooterSection />
     </div>
   );
