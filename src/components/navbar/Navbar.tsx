@@ -6,14 +6,12 @@ import { LuX } from "react-icons/lu";
 import { FaRegUser } from "react-icons/fa";
 import { CgShoppingCart } from "react-icons/cg";
 import { Profile } from "../../screens/Profile";
-import {
-  SearchInput,
-  ProfileView,
-  MobileView,
-  Icons,
-} from "./NavbarStyle";
+import { SearchInput, ProfileView, MobileView, Icons, CloseMenu } from "./NavbarStyle";
 
-export const Navlink = ({isActive}:any) => isActive?"text-[var(--secondary-color)] font-medium":"text-[#6b6c6c] font-medium";
+export const Navlink = ({ isActive }: any) =>
+  isActive
+    ? "text-[var(--secondary-color)] font-medium"
+    : "text-[#6b6c6c] font-medium";
 
 function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
@@ -58,11 +56,13 @@ function Navbar() {
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 lg:gap-7">
-            {isSearchOpen ? (
-              <LuX className={Icons} onClick={handleSearch} />
-            ) : (
-              <IoSearch className={Icons} onClick={handleSearch} />
-            )}
+            <button className="flex items-center" onClick={handleSearch}>
+              {isSearchOpen ? (
+                <LuX className={Icons} />
+              ) : (
+                <IoSearch className={Icons} />
+              )}
+            </button>
 
             <div className="relative group">
               <FaRegUser className={Icons} />
@@ -71,12 +71,16 @@ function Navbar() {
               </div>
             </div>
             <Link to="/cart">
-            <CgShoppingCart className={`max-sm:hidden ${Icons}`} />
+              <CgShoppingCart className={`max-sm:hidden ${Icons}`} />
             </Link>
           </div>
         </nav>
 
-        <div className="flex items-center justify-center mb-3">
+        <div
+          className={
+            isSearchOpen ? "flex items-center justify-center mb-3" : ""
+          }
+        >
           <input
             className={isSearchOpen ? `${SearchInput}` : "hidden"}
             placeholder="Search products..."
@@ -96,12 +100,19 @@ function Navbar() {
   ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="p-6 flex flex-col h-full">
-          <LuX
-            className="text-2xl cursor-pointer self-end border border-3 border-[var(--secondary-color)] rounded-full"
-            onClick={handleMenu}
-          />
+          <div className="flex items-center justify-between">
+            <Link to="/">
+              <h1 className="font-bold text-xl">
+                LUXE<span className="text-[var(--secondary-color)]">.</span>
+              </h1>
+            </Link>
+            <LuX
+              className={CloseMenu}
+              onClick={handleMenu}
+            />
+          </div>
 
-          <div className="flex flex-col gap-6 text-lg mt-3 ">
+          <div className="flex flex-col gap-6 text-lg mt-5 ">
             <NavLink className={Navlink} to="/" onClick={handleMenu}>
               Home
             </NavLink>

@@ -4,30 +4,33 @@ import * as Yup from "yup";
 import { Button, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import {
+  forgotPasswordApi,
+  verifyOtpApi,
+  resetPasswordApi,
+} from "../../services/authApi";
 
 interface forgotPasswordValues {
-  email: string
+  email: string;
 }
 
 interface OtpValues {
-  otp: string
+  otp: string;
 }
 
 interface ResetPasswordValues {
-  password: string
-  confirmPassword: string
+  password: string;
+  confirmPassword: string;
 }
 
-
 function ForgotPassword() {
+
+  const [email, setEmail] = useState<string>("");
+  const [otp, setOtp] = useState<string>("");
   const navigate = useNavigate();
 
-
-  const [step, setStep] = useState(1);
-  const [generatedOtp, setGeneratedOtp] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-
+  const [step, setStep] = useState<number>(1);
+  const [loading, setIsLoading] = useState<boolean>(false);
 
   const emailSchema = Yup.object({
     email: Yup.string()
@@ -37,10 +40,9 @@ function ForgotPassword() {
 
   const otpSchema = Yup.object({
     otp: Yup.string()
-      .length(4, "OTP must be 4 digits")
+      .matches(/^\d{6}$/, "OTP must be 6 digits")
       .required("OTP is required"),
   });
-
 
   const passwordSchema = Yup.object({
     password: Yup.string()
@@ -51,44 +53,82 @@ function ForgotPassword() {
       .required("Confirm your password"),
   });
 
-  const handleEmailSubmit = (values:forgotPasswordValues) => {
-    let userExists = true
+  const handleEmailSubmit = async (values: forgotPasswordValues) => {
+    try {
+      setIsLoading(true);
 
-    if (!userExists) {
-      toast.error("User not found")
-      return;
+      const formData = new FormData();
+      formData.append("email", values.email);
+
+      setEmail(values.email)
+
+      await forgotPasswordApi(formData);
+
+      toast.success("OTP successfully sent your email!")
+
+      setStep(2);
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    setUserEmail(values.email);
-
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(otp);
-
-    setStep(2);
   };
 
+  const handleOtpSubmit = async(values:OtpValues) => {
 
-  const handleOtpSubmit = (values:OtpValues) => {
-    if (values.otp === generatedOtp) {
-      toast.success("OTP Verified Successfully")
+       try {
+      setIsLoading(true);
+
+      const formData = new FormData();
+      formData.append("otp", values.otp);
+
+
+      setOtp(values.otp)
+      await verifyOtpApi(formData);
+      
       setStep(3);
-    } else {
-      toast.error("Invalid Otp")
+      toast.success("OTP Verified Successfully");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
   };
+      
+    
+  
 
+  const handleResetSubmit = async(values: ResetPasswordValues) => {
 
-  const handleResetSubmit = (values:ResetPasswordValues) => {
+    try {
+      setIsLoading(true);
 
-    toast.success("Password Updated Successfully")
-    navigate("/", { replace: true });
+      const formData = new FormData();
+      formData.append("password", values.password);
+      formData.append("confirmPassword", values.confirmPassword);
+
+      await resetPasswordApi(formData);
+      navigate("/", { replace: true });
+      toast.success("Password Updated Successfully");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
+      
+    
+  
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-4">
-      <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-lg 
-                shadow-[0_0_50px_rgba(168,85,247,0.5)]">
-
+      <div
+        className="w-full max-w-md bg-white p-8 sm:p-10 rounded-lg 
+                shadow-[0_0_50px_rgba(168,85,247,0.5)]"
+      >
         <h2 className="text-center text-xl font-semibold mb-6">
           Forgot Password
         </h2>
@@ -101,7 +141,6 @@ function ForgotPassword() {
           >
             {() => (
               <Form className="space-y-4">
-
                 <div>
                   <label>Email</label>
                   <Field name="email" as={Input} className="w-full" />
@@ -112,15 +151,19 @@ function ForgotPassword() {
                   />
                 </div>
 
-                <Button type="primary" style={{fontFamily:"var(--primary-font)"}} htmlType="submit" block>
+                <Button
+                  type="primary"
+                  style={{ fontFamily: "var(--primary-font)" }}
+                  htmlType="submit"
+                  loading={loading}
+                  block
+                >
                   Send OTP
                 </Button>
-
               </Form>
             )}
           </Formik>
         )}
-
 
         {step === 2 && (
           <Formik<OtpValues>
@@ -130,7 +173,6 @@ function ForgotPassword() {
           >
             {() => (
               <Form className="space-y-4">
-
                 <div>
                   <label>Enter OTP</label>
                   <Field name="otp" as={Input} className="w-full" />
@@ -141,10 +183,15 @@ function ForgotPassword() {
                   />
                 </div>
 
-                <Button type="primary" style={{fontFamily:"var(--primary-font)"}} htmlType="submit" block>
+                <Button
+                  type="primary"
+                  style={{ fontFamily: "var(--primary-font)" }}
+                  loading={loading}
+                  htmlType="submit"
+                  block
+                >
                   Verify OTP
                 </Button>
-
               </Form>
             )}
           </Formik>
@@ -158,10 +205,13 @@ function ForgotPassword() {
           >
             {() => (
               <Form className="space-y-4">
-
                 <div>
                   <label>New Password</label>
-                  <Field name="password" as={Input.Password} className="w-full" />
+                  <Field
+                    name="password"
+                    as={Input.Password}
+                    className="w-full"
+                  />
                   <ErrorMessage
                     name="password"
                     component="div"
@@ -183,10 +233,15 @@ function ForgotPassword() {
                   />
                 </div>
 
-                <Button type="primary" style={{fontFamily:"var(--primary-font)"}} htmlType="submit" block>
+                <Button
+                  type="primary"
+                  style={{ fontFamily: "var(--primary-font)" }}
+                  htmlType="submit"
+                  loading={loading}
+                  block
+                >
                   Reset Password
                 </Button>
-
               </Form>
             )}
           </Formik>
@@ -201,7 +256,6 @@ function ForgotPassword() {
             Back to Login
           </button>
         </div>
-
       </div>
     </div>
   );

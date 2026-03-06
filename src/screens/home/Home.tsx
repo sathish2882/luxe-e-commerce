@@ -11,31 +11,29 @@ import {
   HomeImgInsideContainer,
   PopularGrid,
   CardAddToCart,
-  allProductsGrid
-} from "./HomeStyle";
+  allProductsGrid,
+} from "./homeStyle";
 import { motion } from "framer-motion";
 
 const containerVariant = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1
-    }
-  }
-}
+      staggerChildren: 0.1,
+    },
+  },
+};
 
 const cardVariant = {
   hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6 }
-  }
-}
+    transition: { duration: 0.6 },
+  },
+};
 
-console.log(Cookies.get("token"))
-
-
+console.log(Cookies.get("token"));
 
 function Home() {
   return (
@@ -73,8 +71,8 @@ function Home() {
           </div>
         </motion.div>
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
           className="flex-1 max-md:hidden"
         >
@@ -84,10 +82,15 @@ function Home() {
               className="w-full rounded-2xl h-auto transition-all ease duration-300"
               alt="home-img"
             />
-            <div className={HomeImgInsideContainer}>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.2, ease: "linear" }}
+              className={HomeImgInsideContainer}
+            >
               <span className="font-bold text-lg">10K+</span>
               <p className="text-sm text-gray-500">Happy Customers</p>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </section>
@@ -107,35 +110,35 @@ function Home() {
           className={PopularGrid}
         >
           <Link to="/product-details">
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                Best Seller
-              </button>
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500"> $349.99</span>
-            </p>
-          </motion.div>
+            <motion.div
+              variants={cardVariant}
+              className="cursor-pointer flex flex-col gap-2 mb-2"
+            >
+              <div className="group relative overflow-hidden rounded-xl">
+                <img
+                  src={ProImg}
+                  className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
+                />
+                <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                  Best Seller
+                </button>
+                <button className={CardAddToCart}>
+                  <CgShoppingCart className="text-lg" />
+                  Add to Cart
+                </button>
+              </div>
+              <span className="block text-gray-500 text-sm">ELECTRONICS</span>
+              <p className="text-sm text-[var(--primary-color)] font-bold">
+                Wireless Noise-Cancelling Headphones
+              </p>
+              <p className="flex items-center text-gray-500 text-sm">
+                <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
+                4.8 (2,341)
+              </p>
+              <p className="text-md text-[var(--primary-color)] font-medium">
+                $249.99<span className="text-md text-gray-500"> $349.99</span>
+              </p>
+            </motion.div>
           </Link>
           <motion.div
             variants={cardVariant}
@@ -241,7 +244,6 @@ function Home() {
           viewport={{ once: true }}
           className={allProductsGrid}
         >
-          
           <motion.div
             variants={cardVariant}
             className="cursor-pointer flex flex-col gap-2 mb-2"
@@ -271,7 +273,7 @@ function Home() {
               $249.99<span className="text-md text-gray-500"> $349.99</span>
             </p>
           </motion.div>
-  
+
           <motion.div
             variants={cardVariant}
             className="cursor-pointer flex flex-col gap-2 mb-2"

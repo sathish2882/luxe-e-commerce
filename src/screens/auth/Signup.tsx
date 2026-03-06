@@ -42,8 +42,9 @@ function Signup() {
     formData.append("password", values.password);
 
     const response = await signupApi(formData)
-
     console.log(response)
+
+    toast.success("Signup successful")
 
     navigate("/login");
      }

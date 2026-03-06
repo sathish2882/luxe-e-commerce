@@ -17,7 +17,7 @@ function FooterSection() {
         </div>
         <div className="flex flex-col gap-3">
           <span className="block font-bold text-sm">Shop</span>
-          <Link className={FooterLink} to="#">
+          <Link className={FooterLink} to="/shop">
             All Products
           </Link>
           <Link className={FooterLink} to="#">

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { categoryGrid } from "./categoriesStyle";
+import { CategoryGrid,CategoryImg } from "./categoriesStyle";
 import { ProImg } from "../../utils/images";
 
 const containerVariant = {
@@ -42,7 +42,7 @@ function Categories() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className={categoryGrid}
+        className={CategoryGrid}
       >
         {products.map((each) =>
           each.category !== "All" ? (
@@ -53,7 +53,7 @@ function Categories() {
               <div className="group relative overflow-hidden rounded-xl">
                 <img
                   src={ProImg}
-                  className="w-full transition-transform duration-300 group-hover:scale-110 rounded-md"
+                  className={CategoryImg}
                 />
                 <h3 className="text-white text-2xl font-bold absolute left-5 bottom-5">
                   {each.category}
