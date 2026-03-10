@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Button, Input } from "antd";
@@ -8,6 +8,7 @@ import {
   forgotPasswordApi,
   verifyOtpApi,
   resetPasswordApi,
+  resendOtpApi
 } from "../../services/authApi";
 
 interface forgotPasswordValues {
@@ -24,13 +25,31 @@ interface ResetPasswordValues {
 }
 
 function ForgotPassword() {
-
   const [email, setEmail] = useState<string>("");
-  const [otp, setOtp] = useState<string>("");
+ 
+  const [otpKey, setOtpKey] = useState<string>("");
+  const [timer, setTimer] = useState<number>(10);
+  const [canResend, setCanResend] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const [step, setStep] = useState<number>(1);
   const [loading, setIsLoading] = useState<boolean>(false);
+
+  const minutes = Math.floor(timer / 60);
+  const seconds = timer % 60;
+
+  useEffect(() => {
+    if (step === 2 && timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+
+    if (timer === 0) {
+      setCanResend(true);
+    }
+  }, [timer, step]);
 
   const emailSchema = Yup.object({
     email: Yup.string()
@@ -59,12 +78,12 @@ function ForgotPassword() {
 
       const formData = new FormData();
       formData.append("email", values.email);
-
-      setEmail(values.email)
-
-      await forgotPasswordApi(formData);
-
-      toast.success("OTP successfully sent your email!")
+      setEmail(values.email);
+      const response = await forgotPasswordApi(formData);
+      setOtpKey(response.data.otp_key);
+      setCanResend(false);
+      setTimer(10);
+      toast.success("OTP successfully sent your email!");
 
       setStep(2);
     } catch (error: any) {
@@ -75,18 +94,36 @@ function ForgotPassword() {
     }
   };
 
-  const handleOtpSubmit = async(values:OtpValues) => {
+  const handleResendOtp = async () => {
+    try {
+      setIsLoading(true);
 
-       try {
+      const formData = new FormData();
+      formData.append("reset_key", otpKey);
+      await resendOtpApi(formData);
+      setCanResend(false);
+      setTimer(10);
+      toast.success("OTP successfully resent your email!");
+
+      setStep(2);
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (values: OtpValues) => {
+    try {
       setIsLoading(true);
 
       const formData = new FormData();
       formData.append("otp", values.otp);
+      formData.append("otp_key", otpKey);
 
-
-      setOtp(values.otp)
       await verifyOtpApi(formData);
-      
+
       setStep(3);
       toast.success("OTP Verified Successfully");
     } catch (error: any) {
@@ -96,18 +133,16 @@ function ForgotPassword() {
       setIsLoading(false);
     }
   };
-      
-    
-  
 
-  const handleResetSubmit = async(values: ResetPasswordValues) => {
-
+  const handleResetSubmit = async (values: ResetPasswordValues) => {
     try {
       setIsLoading(true);
 
       const formData = new FormData();
-      formData.append("password", values.password);
-      formData.append("confirmPassword", values.confirmPassword);
+
+      formData.append("otp_key", otpKey);
+      formData.append("new_password", values.password);
+      console.log(otpKey);
 
       await resetPasswordApi(formData);
       navigate("/", { replace: true });
@@ -119,9 +154,6 @@ function ForgotPassword() {
       setIsLoading(false);
     }
   };
-      
-    
-  
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-4">
@@ -192,6 +224,22 @@ function ForgotPassword() {
                 >
                   Verify OTP
                 </Button>
+
+                <Button
+                  type="primary"
+                  style={{ fontFamily: "var(--primary-font)" }}
+                  disabled={!canResend}
+                  loading={loading}
+                  onClick={handleResendOtp}
+                  block
+                >
+                  Resend OTP
+                </Button>
+
+                <p className="text-center text-gray-700 font-bold">
+                  OTP expires in {minutes.toString().padStart(2, "0")}:
+                  {seconds.toString().padStart(2, "0")}
+                </p>
               </Form>
             )}
           </Formik>
@@ -250,7 +298,7 @@ function ForgotPassword() {
         <div className="text-center mt-4">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="text-blue-500 hover:underline text-sm"
           >
             Back to Login

@@ -1,25 +1,25 @@
 import { motion } from "framer-motion";
-import { CategoryGrid,CategoryImg } from "./categoriesStyle";
+import { Helmet } from "react-helmet-async";
+import { CategoryGrid, CategoryImg } from "./categoriesStyle";
 import { ProImg } from "../../utils/images";
 
 const containerVariant = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1
-    }
-  }
-}
+      staggerChildren: 0.1,
+    },
+  },
+};
 
 const cardVariant = {
   hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6 }
-  }
-}
-
+    transition: { duration: 0.6 },
+  },
+};
 
 const products = [
   { id: 1, title: "Headphones", category: "All" },
@@ -32,40 +32,49 @@ const products = [
 
 function Categories() {
   return (
-    <section className="my-15 px-8 sm:px-10 xl:px-20">
-      <h3 className="text-4xl font-bold mb-3 text-black">Categories</h3>
+    <>
+      <Helmet>
+        <title>Luxe | Product Categories</title>
 
-      <p className="text-gray-500 text-md mb-8">Browse products by category.</p>
+        <meta
+          name="description"
+          content="Browse product categories at Luxe including electronics, clothing, accessories, sports, and home products."
+        />
+      </Helmet>
+      <section className="my-15 px-8 sm:px-10 xl:px-20">
+        <h3 className="text-4xl font-bold mb-3 text-black">Categories</h3>
 
-      <motion.div
-        variants={containerVariant}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        className={CategoryGrid}
-      >
-        {products.map((each) =>
-          each.category !== "All" ? (
-            <motion.div
-              variants={cardVariant}
-              className="cursor-pointer flex flex-col gap-2 mb-2"
-            >
-              <div className="group relative overflow-hidden rounded-xl">
-                <img
-                  src={ProImg}
-                  className={CategoryImg}
-                />
-                <h3 className="text-white text-2xl font-bold absolute left-5 bottom-5">
-                  {each.category}
-                </h3>
-              </div>
-            </motion.div>
-          ) : (
-            ""
-          ),
-        )}
-      </motion.div>
-    </section>
+        <p className="text-gray-500 text-md mb-8">
+          Browse products by category.
+        </p>
+
+        <motion.div
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className={CategoryGrid}
+        >
+          {products.map((each) =>
+            each.category !== "All" ? (
+              <motion.div
+                variants={cardVariant}
+                className="cursor-pointer flex flex-col gap-2 mb-2"
+              >
+                <div className="group relative overflow-hidden rounded-xl max-h-75">
+                  <img src={ProImg} className={CategoryImg} />
+                  <h3 className="text-white text-2xl font-bold absolute left-5 bottom-5">
+                    {each.category}
+                  </h3>
+                </div>
+              </motion.div>
+            ) : (
+              ""
+            ),
+          )}
+        </motion.div>
+      </section>
+    </>
   );
 }
 

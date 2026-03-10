@@ -24,8 +24,10 @@ export function Profile() {
     }
   };
   useEffect(() => {
-    fetchUser();
-    console.log(user)
+    const token = Cookies.get("token");
+    if (token) {
+      fetchUser();
+    }
   }, []);
 
   const handleLogin = () => {
@@ -43,15 +45,17 @@ export function Profile() {
       {user ? (
         <div>
           <h3 className="font-bold">{user.username}</h3>
-          <span className="text-orange-700">{user.email.slice(0,8)}...@gmail.com</span>
+          <span className="text-orange-700">
+            {user.email.slice(0, 8)}...@gmail.com
+          </span>
         </div>
       ) : (
         ""
       )}
       <Link to="orders">
-      <button className="text-left hover:text-black cursor-pointer">
-        Orders
-      </button>
+        <button className="text-left hover:text-black cursor-pointer">
+          Orders
+        </button>
       </Link>
       <button className="text-left hover:text-black cursor-pointer">
         Wishlist
