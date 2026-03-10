@@ -8,15 +8,18 @@ export const signupApi = (data:FormData) =>{
 }
 
 export const userInfoApi = () =>{
-    return API.get("/getuserinfo")
+    return API.post("/getuserinfo")
 }
 
 export const forgotPasswordApi = (data:FormData) =>{
-    return API.post("/forgot-password",data)
+    return API.post("/forgot_password",data)
 }
 export const verifyOtpApi = (data:FormData) =>{
-    return API.post("/verify-otp",data)
+    return API.post("/verify_forgot_otp",data)
 }
 export const resetPasswordApi = (data:FormData) =>{
-    return API.post("/reset-password",data)
+    return API.post("/set_new_password",data)
+}
+export const resendOtpApi = (data:FormData) =>{
+    return API.post("/resend_otp",data)
 }

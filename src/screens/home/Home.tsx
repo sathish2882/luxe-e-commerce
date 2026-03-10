@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { HomeImg, ProImg } from "../../utils/images";
 import Cookies from "js-cookie";
 import { CgShoppingCart } from "react-icons/cg";
@@ -38,6 +39,13 @@ console.log(Cookies.get("token"));
 function Home() {
   return (
     <>
+      <Helmet>
+        <title>Luxe | Modern Online Shopping</title>
+        <meta
+          name="description"
+          content="Discover premium electronics, fashion, and lifestyle products at Luxe. Shop modern products with great deals and fast delivery."
+        />
+      </Helmet>
       <section className={HomeTop}>
         {/* <div className="loader"></div> */}
         <motion.div
@@ -136,7 +144,11 @@ function Home() {
                 4.8 (2,341)
               </p>
               <p className="text-md text-[var(--primary-color)] font-medium">
-                $249.99<span className="text-md text-gray-500 line-through ml-2"> $349.99</span>
+                $249.99
+                <span className="text-md text-gray-500 line-through ml-2">
+                  {" "}
+                  $349.99
+                </span>
               </p>
             </motion.div>
           </Link>
@@ -164,7 +176,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -193,7 +206,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -220,7 +234,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
         </motion.div>
@@ -270,7 +285,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
 
@@ -298,7 +314,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -327,7 +344,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -354,7 +372,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -383,7 +402,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -412,7 +432,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -439,7 +460,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
           <motion.div
@@ -466,7 +488,8 @@ function Home() {
               4.8 (2,341)
             </p>
             <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99<span className="text-md text-gray-500 ml-2"> $349.99</span>
+              $249.99
+              <span className="text-md text-gray-500 ml-2"> $349.99</span>
             </p>
           </motion.div>
         </motion.div>

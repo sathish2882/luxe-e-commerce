@@ -7,7 +7,7 @@ import { FaRegUser } from "react-icons/fa";
 import { CgShoppingCart } from "react-icons/cg";
 import { Profile } from "../../screens/Profile";
 import { SearchInput, ProfileView, MobileView, Icons, CloseMenu } from "./NavbarStyle";
-import { span } from "framer-motion/client";
+
 
 export const Navlink = ({ isActive }: any) =>
   isActive
@@ -35,7 +35,7 @@ function Navbar() {
     <>
       <header className="sticky z-40 top-0 backdrop-blur-md bg-[rgb(249,248,245)]/80">
         <nav className="flex items-center justify-between h-16 px-10 sm:px-10 xl:px-20">
-          <button className="md:hidden text-xl" onClick={handleMenu}>
+          <button aria-label="menu btn" className="md:hidden text-xl" onClick={handleMenu}>
             <LuMenu />
           </button>
           <Link to="/">
@@ -59,7 +59,7 @@ function Navbar() {
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 lg:gap-7">
-            <button className="flex items-center" onClick={handleSearch}>
+            <button aria-label="search btn" className="flex items-center" onClick={handleSearch}>
               {isSearchOpen ? (
                 <LuX className={Icons} />
               ) : (
@@ -118,6 +118,7 @@ function Navbar() {
             <LuX
               className={CloseMenu}
               onClick={handleMenu}
+              aria-label="close icon"
             />
           </div>
 
