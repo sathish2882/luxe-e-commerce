@@ -37,7 +37,7 @@ export function Profile() {
   const handleLogout = () => {
     Cookies.remove("token");
     setUser(null);
-    navigate("/");
+    navigate("/",{replace : true});
   };
 
   return (

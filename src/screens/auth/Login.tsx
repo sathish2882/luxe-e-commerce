@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, replace, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { Button, Input } from "antd";
-import { loginApi } from "../../services/authApi";
+import {
+  loginApi,
+  verifyOtpFor2FA,
+  resendOtpApi,
+} from "../../services/authApi";
 import { setToken } from "../../utils/authCookies";
 import { toast } from "react-toastify";
 
@@ -12,9 +16,20 @@ interface LoginFormValues {
   password: string;
 }
 
+interface OtpValues {
+  otp: string;
+}
+
 function Login() {
   const [loading, setLoading] = useState<boolean>(false);
+  const [step, setStep] = useState<number>(1);
+  const [otpKey, setOtpKey] = useState<string>("");
+  const [timer, setTimer] = useState<number>(60);
+  const [canResend, setCanResend] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  const minutes = Math.floor(timer / 60);
+  const seconds = timer % 60;
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -23,6 +38,12 @@ function Login() {
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Please input your password!"),
+  });
+
+  const otpSchema = Yup.object({
+    otp: Yup.string()
+      .matches(/^\d{6}$/, "OTP must be 6 digits")
+      .required("OTP is required"),
   });
 
   const handleSubmit = async (values: LoginFormValues) => {
@@ -36,19 +57,60 @@ function Login() {
 
       const response = await loginApi(formData);
 
-      console.log(response.data.token)
+      if (response.data.token) {
+        setToken(response.data.token);
+        toast.success("Login successful");
 
-      setToken(response.data.token);
-      toast.success("Login successful");
-
-      navigate(`/`);
+        navigate("/", { replace: true });
+      } else if (response.data.otp_key) {
+        setOtpKey(response.data.otp_key);
+        toast.success("OTP sent to your email");
+        setStep(2);
+      }
     } catch (error: any) {
       const message = error.response?.data?.message || "Something went wrong";
       toast.error(message);
+    } finally {
+      setLoading(false);
     }
-    finally {
-    setLoading(false);
-  }
+  };
+
+  const handleOtpSubmit = async (values: OtpValues) => {
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("otp", values.otp);
+      formData.append("otp_key", otpKey);
+
+      await verifyOtpFor2FA(formData);
+      navigate("/", { replace: true });
+      toast.success("OTP Verified Successfully");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("reset_key", otpKey);
+      await resendOtpApi(formData);
+      setCanResend(false);
+      setTimer(60);
+      toast.success("OTP successfully resent your email!");
+      setStep(2);
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleForgotPassword = () => {
@@ -66,69 +128,123 @@ function Login() {
             LUXE<span className="text-[rgb(230,107,26)]">.</span>
           </h1>
         </Link>
-        <Formik<LoginFormValues>
-          initialValues={{ email: "", password: "" }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {() => (
-            <Form className="space-y-4">
-              <div className="mb-4">
-                <label>Email</label>
-                <Field name="email" as={Input} className="w-full" />
-                <ErrorMessage
-                  name="email"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
+        {step === 1 && (
+          <Formik<LoginFormValues>
+            initialValues={{ email: "", password: "" }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {() => (
+              <Form className="space-y-4">
+                <div className="mb-4">
+                  <label>Email</label>
+                  <Field name="email" as={Input} className="w-full" />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-              <div className="mb-4">
-                <label>Password</label>
-                <Field name="password" as={Input.Password} className="w-full" />
-                <ErrorMessage
-                  name="password"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
+                <div className="mb-4">
+                  <label>Password</label>
+                  <Field
+                    name="password"
+                    as={Input.Password}
+                    className="w-full"
+                  />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-              <Button
-                type="primary"
-                htmlType="submit"
-                block
-                loading={loading}
-                className="mt-[30px]"
-                style={{ fontSize: "15px", fontFamily: "var(--font-body)" }}
-              >
-                Login
-              </Button>
-
-              <Button
-                type="text"
-                onClick={handleForgotPassword}
-                block
-                style={{
-                  color: "#0d6ac9",
-                  fontWeight: "600",
-                  fontSize: "15px",
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                Forgot Password
-              </Button>
-              <p className="text-center mt-4">
-                Don't have an account?{" "}
-                <Link
-                  to="/signup"
-                  className="text-[var(--secondary-color)] font-semibold"
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  loading={loading}
+                  className="mt-[30px]"
+                  style={{ fontSize: "15px", fontFamily: "var(--font-body)" }}
                 >
-                  Sign Up
-                </Link>
-              </p>
-            </Form>
-          )}
-        </Formik>
+                  Login
+                </Button>
+
+                <Button
+                  type="text"
+                  onClick={handleForgotPassword}
+                  block
+                  style={{
+                    color: "#0d6ac9",
+                    fontWeight: "600",
+                    fontSize: "15px",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  Forgot Password
+                </Button>
+                <p className="text-center mt-4">
+                  Don't have an account?{" "}
+                  <Link
+                    to="/signup"
+                    className="text-[var(--secondary-color)] font-semibold"
+                  >
+                    Sign Up
+                  </Link>
+                </p>
+              </Form>
+            )}
+          </Formik>
+        )}
+        {step === 2 && (
+          <Formik<OtpValues>
+            initialValues={{ otp: "" }}
+            validationSchema={otpSchema}
+            onSubmit={handleOtpSubmit}
+          >
+            {() => (
+              <Form className="space-y-4">
+                <div>
+                  <label>Enter OTP</label>
+                  <Field name="otp" as={Input} className="w-full" />
+                  <ErrorMessage
+                    name="otp"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <Button
+                  type="primary"
+                  style={{ fontFamily: "var(--primary-font)" }}
+                  loading={loading}
+                  htmlType="submit"
+                  disabled={canResend}
+                  block
+                >
+                  Verify OTP
+                </Button>
+
+                <Button
+                  type="primary"
+                  style={{ fontFamily: "var(--primary-font)" }}
+                  disabled={!canResend}
+                  loading={loading}
+                  onClick={handleResendOtp}
+                  block
+                >
+                  Resend OTP
+                </Button>
+
+                <p className="text-center text-gray-700 font-bold">
+                  OTP expires in {minutes.toString().padStart(2, "0")}:
+                  {seconds.toString().padStart(2, "0")}
+                </p>
+              </Form>
+            )}
+          </Formik>
+        )}
       </div>
     </div>
   );
