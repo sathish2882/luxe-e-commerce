@@ -46,7 +46,7 @@ function Signup() {
 
     toast.success("Signup successful")
 
-    navigate("/login");
+    navigate("/login",{replace : true});
      }
      catch (error: any) {
            const message = error.response?.data?.message || "Something went wrong";

@@ -23,3 +23,7 @@ export const resetPasswordApi = (data:FormData) =>{
 export const resendOtpApi = (data:FormData) =>{
     return API.post("/resend_otp",data)
 }
+
+export const verifyOtpFor2FA = (data:FormData) =>{
+    return API.post("/verify_otp",data)
+}

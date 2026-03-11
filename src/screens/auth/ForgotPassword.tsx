@@ -25,10 +25,9 @@ interface ResetPasswordValues {
 }
 
 function ForgotPassword() {
-  const [email, setEmail] = useState<string>("");
  
   const [otpKey, setOtpKey] = useState<string>("");
-  const [timer, setTimer] = useState<number>(10);
+  const [timer, setTimer] = useState<number>(60);
   const [canResend, setCanResend] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -78,11 +77,10 @@ function ForgotPassword() {
 
       const formData = new FormData();
       formData.append("email", values.email);
-      setEmail(values.email);
       const response = await forgotPasswordApi(formData);
       setOtpKey(response.data.otp_key);
       setCanResend(false);
-      setTimer(10);
+      setTimer(60);
       toast.success("OTP successfully sent your email!");
 
       setStep(2);
@@ -102,7 +100,7 @@ function ForgotPassword() {
       formData.append("reset_key", otpKey);
       await resendOtpApi(formData);
       setCanResend(false);
-      setTimer(10);
+      setTimer(60);
       toast.success("OTP successfully resent your email!");
 
       setStep(2);
@@ -220,6 +218,7 @@ function ForgotPassword() {
                   style={{ fontFamily: "var(--primary-font)" }}
                   loading={loading}
                   htmlType="submit"
+                  disabled={canResend}
                   block
                 >
                   Verify OTP
@@ -299,7 +298,7 @@ function ForgotPassword() {
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="text-blue-500 hover:underline text-sm"
+            className="text-blue-500 hover:underline text-sm cursor-pointer"
           >
             Back to Login
           </button>

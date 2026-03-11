@@ -31,7 +31,7 @@ State & Forms:
 
 Routing:
 
-* React Router DOM
+* React Router DOM (Hash Router)
 
 API Handling:
 
@@ -54,15 +54,15 @@ src/
 ├── screens/           # Application pages (Login, Signup, Profile etc.)
 ├── services/          # API service functions
 ├── utils/             # Utility functions (auth cookies etc.)
-├── styles/            # Component styles
-├── tests/             # Jest test files
+├── routes/            # routes for entire website
+├── redux/             # products and cart slices
 
 ## Installation
 
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/luxe-app.git
+git clone https://github.com/sathish2882/luxe-e-commerce.git
 ```
 
 Navigate to project folder:
@@ -116,13 +116,6 @@ The application is fully responsive and optimized for:
 * Payment gateway integration
 * Order history
 * Admin dashboard
-
-## 👨‍💻 Author
-
-**Sathish M**
-
-* GitHub: https://github.com/sathish2882
-* LinkedIn: https://www.linkedin.com/in/sathish-mariyappan
 
 ---
 
