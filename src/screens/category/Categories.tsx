@@ -27,7 +27,7 @@ const products = [
   { id: 3, title: "Shoes", category: "Clothing" },
   { id: 4, title: "Watch", category: "Home & Living" },
   { id: 5, title: "Chair", category: "Accessories" },
-  { id: 5, title: "Chair", category: "Sports" },
+  { id: 6, title: "Football", category: "Sports" },
 ];
 
 function Categories() {
@@ -59,6 +59,7 @@ function Categories() {
             each.category !== "All" ? (
               <motion.div
                 variants={cardVariant}
+                key={each.id}
                 className="cursor-pointer flex flex-col gap-2 mb-2"
               >
                 <div className="group relative overflow-hidden rounded-xl max-h-75">

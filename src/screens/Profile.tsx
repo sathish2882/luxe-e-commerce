@@ -1,26 +1,30 @@
+import { memo } from "react";
 import { Button } from "antd";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userInfoApi } from "../services/authApi";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 interface UserInfo {
   username: string;
   email: string;
 }
 
-export function Profile() {
+function Profile() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<UserInfo | null>(null);
 
   const fetchUser = async () => {
+    console.log("Get User Called");
     try {
       const response = await userInfoApi();
       setUser(response.data);
       console.log(response.data);
-    } catch (e: any) {
-      console.log(e.response.message);
+    } catch (error: any) {
+      const message = error?.response?.data?.detail || "Something went wrong";
+      toast.error(message);
     }
   };
   useEffect(() => {
@@ -37,7 +41,7 @@ export function Profile() {
   const handleLogout = () => {
     Cookies.remove("token");
     setUser(null);
-    navigate("/",{replace : true});
+    navigate("/", { replace: true });
   };
 
   return (
@@ -46,7 +50,7 @@ export function Profile() {
         <div>
           <h3 className="font-bold">{user.username}</h3>
           <span className="text-orange-700">
-            {user.email.slice(0, 8)}...@gmail.com
+            {user.email.slice(0, 8)}***@gmail.com
           </span>
         </div>
       ) : (
@@ -82,3 +86,5 @@ export function Profile() {
     </div>
   );
 }
+
+export default memo(Profile);

@@ -8,7 +8,7 @@ interface Order {
   status: string
 }
 
-const orders = []
+const orders = [1]
 
 function Orders() {
 

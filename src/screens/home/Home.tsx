@@ -5,6 +5,8 @@ import Cookies from "js-cookie";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { FaArrowRight } from "react-icons/fa";
+import { useEffect } from "react";
+import { fetchProducts } from "../../redux/productSlice";
 import {
   ShopNowBtn,
   exploreBtn,
@@ -15,6 +17,8 @@ import {
   allProductsGrid,
 } from "./homeStyle";
 import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/store";
 
 const containerVariant = {
   hidden: {},
@@ -37,6 +41,12 @@ const cardVariant = {
 console.log(Cookies.get("token"));
 
 function Home() {
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
   return (
     <>
       <Helmet>
