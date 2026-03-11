@@ -13,6 +13,7 @@ import Cart from "../screens/Cart";
 import Orders from "../screens/Orders";
 import NotFound from "../screens/NotFound";
 import Contact from "../screens/Contact";
+import PlaceOrder from "../screens/PlaceOrder";
 
 export const router = createHashRouter([
   {
@@ -56,6 +57,10 @@ export const router = createHashRouter([
   {
     path: "/contact",
     element: <Contact />,
+  },
+  {
+    path: "/place-order",
+    element: <PlaceOrder />,
   },
 
   {

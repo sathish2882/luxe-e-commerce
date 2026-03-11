@@ -5,7 +5,7 @@ import { IoSearch } from "react-icons/io5";
 import { LuX } from "react-icons/lu";
 import { FaRegUser } from "react-icons/fa";
 import { CgShoppingCart } from "react-icons/cg";
-import { Profile } from "../../screens/Profile";
+import  Profile  from "../../screens/Profile";
 import { SearchInput, ProfileView, MobileView, Icons, CloseMenu } from "./NavbarStyle";
 
 

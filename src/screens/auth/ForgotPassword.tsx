@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Button, Input } from "antd";
+import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   forgotPasswordApi,
   verifyOtpApi,
   resetPasswordApi,
-  resendOtpApi
+  resendOtpApi,
 } from "../../services/authApi";
+import FormInput from "../../components/formInput/FormInput";
 
 interface forgotPasswordValues {
   email: string;
@@ -25,7 +26,6 @@ interface ResetPasswordValues {
 }
 
 function ForgotPassword() {
- 
   const [otpKey, setOtpKey] = useState<string>("");
   const [timer, setTimer] = useState<number>(60);
   const [canResend, setCanResend] = useState<boolean>(false);
@@ -85,7 +85,7 @@ function ForgotPassword() {
 
       setStep(2);
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -105,7 +105,7 @@ function ForgotPassword() {
 
       setStep(2);
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -125,7 +125,7 @@ function ForgotPassword() {
       setStep(3);
       toast.success("OTP Verified Successfully");
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -146,7 +146,7 @@ function ForgotPassword() {
       navigate("/", { replace: true });
       toast.success("Password Updated Successfully");
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -171,15 +171,7 @@ function ForgotPassword() {
           >
             {() => (
               <Form className="space-y-4">
-                <div>
-                  <label>Email</label>
-                  <Field name="email" as={Input} className="w-full" />
-                  <ErrorMessage
-                    name="email"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput label="Email" name="email" type="email" />
 
                 <Button
                   type="primary"
@@ -203,15 +195,7 @@ function ForgotPassword() {
           >
             {() => (
               <Form className="space-y-4">
-                <div>
-                  <label>Enter OTP</label>
-                  <Field name="otp" as={Input} className="w-full" />
-                  <ErrorMessage
-                    name="otp"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput label="Enter OTP" name="otp" />
 
                 <Button
                   type="primary"
@@ -252,33 +236,17 @@ function ForgotPassword() {
           >
             {() => (
               <Form className="space-y-4">
-                <div>
-                  <label>New Password</label>
-                  <Field
-                    name="password"
-                    as={Input.Password}
-                    className="w-full"
-                  />
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput
+                  label="New Password"
+                  name="password"
+                  type="password"
+                />
 
-                <div>
-                  <label>Confirm Password</label>
-                  <Field
-                    name="confirmPassword"
-                    as={Input.Password}
-                    className="w-full"
-                  />
-                  <ErrorMessage
-                    name="confirmPassword"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput
+                  label="Confirm Password"
+                  name="password"
+                  type="password"
+                />
 
                 <Button
                   type="primary"

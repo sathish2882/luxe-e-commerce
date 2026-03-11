@@ -8,7 +8,7 @@ import { ProImg } from "../utils/images";
 function Cart() {
   const navigate = useNavigate();
   const handleCheckout = () => {
-    navigate("/checkout");
+    navigate("/place-order");
   };
 
   return (

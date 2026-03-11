@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Link, replace, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Formik, Form } from "formik";
+import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { Button, Input } from "antd";
+import { Button } from "antd";
 import {
   loginApi,
   verifyOtpFor2FA,
@@ -10,6 +10,7 @@ import {
 } from "../../services/authApi";
 import { setToken } from "../../utils/authCookies";
 import { toast } from "react-toastify";
+import FormInput from "../../components/formInput/FormInput";
 
 interface LoginFormValues {
   email: string;
@@ -46,6 +47,19 @@ function Login() {
       .required("OTP is required"),
   });
 
+  useEffect(() => {
+    if (step === 2 && timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+
+    if (timer === 0) {
+      setCanResend(true);
+    }
+  }, [timer, step]);
+
   const handleSubmit = async (values: LoginFormValues) => {
     try {
       setLoading(true);
@@ -60,7 +74,6 @@ function Login() {
       if (response.data.token) {
         setToken(response.data.token);
         toast.success("Login successful");
-
         navigate("/", { replace: true });
       } else if (response.data.otp_key) {
         setOtpKey(response.data.otp_key);
@@ -68,7 +81,7 @@ function Login() {
         setStep(2);
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -83,11 +96,13 @@ function Login() {
       formData.append("otp", values.otp);
       formData.append("otp_key", otpKey);
 
-      await verifyOtpFor2FA(formData);
+      const response = await verifyOtpFor2FA(formData);
+      console.log(response);
+      setToken(response.data.token);
       navigate("/", { replace: true });
       toast.success("OTP Verified Successfully");
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -106,7 +121,7 @@ function Login() {
       toast.success("OTP successfully resent your email!");
       setStep(2);
     } catch (error: any) {
-      const message = error.response?.data?.message || "Something went wrong";
+      const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -136,29 +151,9 @@ function Login() {
           >
             {() => (
               <Form className="space-y-4">
-                <div className="mb-4">
-                  <label>Email</label>
-                  <Field name="email" as={Input} className="w-full" />
-                  <ErrorMessage
-                    name="email"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput label="Email" name="email" type="email" />
 
-                <div className="mb-4">
-                  <label>Password</label>
-                  <Field
-                    name="password"
-                    as={Input.Password}
-                    className="w-full"
-                  />
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput label="Password" name="password" type="password" />
 
                 <Button
                   type="primary"
@@ -205,15 +200,7 @@ function Login() {
           >
             {() => (
               <Form className="space-y-4">
-                <div>
-                  <label>Enter OTP</label>
-                  <Field name="otp" as={Input} className="w-full" />
-                  <ErrorMessage
-                    name="otp"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                <FormInput label="Enter OTP" name="otp" type="text" />
 
                 <Button
                   type="primary"
