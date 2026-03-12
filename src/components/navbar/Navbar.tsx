@@ -7,6 +7,9 @@ import { FaRegUser } from "react-icons/fa";
 import { CgShoppingCart } from "react-icons/cg";
 import  Profile  from "../../screens/Profile";
 import { SearchInput, ProfileView, MobileView, Icons, CloseMenu } from "./NavbarStyle";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+
 
 
 export const Navlink = ({ isActive }: any) =>
@@ -18,6 +21,7 @@ function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
+  const totalQty = useSelector((state: RootState) => state.cart.totalQty);
   const handleMenu = () => {
     setIsMenuOpen((prev) => !prev);
   };
@@ -29,8 +33,6 @@ function Navbar() {
     document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
   }, [isMenuOpen]);
 
-
-  let totalQty = 4
   return (
     <>
       <header className="sticky z-40 top-0 backdrop-blur-md bg-[rgb(249,248,245)]/80">

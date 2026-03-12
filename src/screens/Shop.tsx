@@ -1,18 +1,23 @@
 import { Button } from "antd";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-
+import { useEffect } from "react";
+import { fetchProducts } from "../redux/productSlice";
 import { allProductsGrid, CardAddToCart } from "./home/homeStyle";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { useState } from "react";
-import { useSelector} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import type { AppDispatch } from "../redux/store";
+import { addToCart, setCart } from "../redux/cartSlice";
+import Cookies from "js-cookie";
+import { getCartApi, updateCartApi } from "../services/authApi";
 
 const containerVariant = {
   hidden: {},
   show: {
+    opacity: 1,
     transition: {
       staggerChildren: 0.2,
     },
@@ -28,23 +33,56 @@ const cardVariant = {
   },
 };
 
-const products = [
-  { id: 1, title: "Headphones", category: "All" },
-  { id: 2, title: "Laptop", category: "Electronics" },
-  { id: 3, title: "Shoes", category: "Clothing" },
-  { id: 4, title: "Watch", category: "Home & Living" },
-  { id: 5, title: "Chair", category: "Accessories" },
-  { id: 6, title: "Football", category: "Sports" },
-];
-
 function Shop() {
-  
-  const [activeCategory, setCategory] = useState<string>("All");
+  const dispatch = useDispatch<AppDispatch>();
 
-  const allProducts = useSelector(
-    (state: RootState) => state.products.products,
+  // const [activeCategory, setCategory] = useState<string>("All");
+
+  const { isLoading, products } = useSelector(
+    (state: RootState) => state.products,
   );
-  console.log(allProducts);
+
+  console.log("products:", products);
+  console.log("loading:", isLoading);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  const handleAddToCart = async (product: any) => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      dispatch(addToCart(product));
+      return;
+    }
+
+    const currentCart = await getCartApi();
+
+    const updatedItems = currentCart.map((item: any) => ({
+      product_id: item.productId,
+      quantity: item.quantity,
+    }));
+
+    const existing = updatedItems.find(
+      (item) => item.product_id === product.productId,
+    );
+
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      updatedItems.push({
+        product_id: product.productId,
+        quantity: 1,
+      });
+    }
+
+    await updateCartApi(updatedItems);
+
+    const newCart = await getCartApi();
+
+    dispatch(setCart(newCart));
+  };
 
   return (
     <>
@@ -62,75 +100,86 @@ function Shop() {
           Browse our curated collection of premium products.
         </p>
 
-        <div className="flex items-center flex-wrap gap-3">
+        {isLoading && (
+          <div className="flex justify-center my-4">
+            <div className="loader"></div>
+          </div>
+        )}
+
+        {/* <div className="flex items-center flex-wrap gap-3">
           {products.map((each) => (
             <Button
               className={
-                activeCategory === each.category
+                activeCategory === each.categoryName
                   ? "active-category"
                   : "filter-btn"
               }
-              onClick={() => setCategory(each.category)}
+              onClick={() => setCategory(each.categoryName)}
               type="primary"
-              key={each.id}
+              key={each.categoryName}
             >
-              {each.category}
+              {each.categoryName}
             </Button>
           ))}
-        </div>
+        </div> */}
 
-        <motion.div
-          variants={containerVariant}
-          initial="hidden"
-          animate="show"
-          viewport={{ once: true }}
-          className={allProductsGrid}
-        >
-          {allProducts.map((product) => {
-            const discountedPrice = Math.round(
-              product.price * (1 - product.discountPercent / 100),
-            );
+        {products.length > 0 && (
+          <motion.div
+            variants={containerVariant}
+            initial="hidden"
+           animate="show"
+            viewport={{ once: true }}
+            className={allProductsGrid}
+          >
+            {products.map((product) => {
+              const discountedPrice = Math.round(
+                product.price * (1 - product.discountPercent / 100),
+              );
 
-            return (
-              <motion.div
-                variants={cardVariant}
-                className="cursor-pointer flex flex-col gap-2 mb-2"
-                key={product.productId}
-              >
-                <div className="group relative overflow-hidden rounded-xl">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.productName}
-                    className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-                  />
-                  <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                    Best Seller
-                  </button>
-                  <button className={CardAddToCart}>
-                    <CgShoppingCart className="text-lg" />
-                    Add to Cart
-                  </button>
-                </div>
-                <span className="block text-gray-500 text-sm">
-                  {product.categoryName}
-                </span>
-                <p className="text-sm text-[var(--primary-color)] font-bold">
-                  {product.productName}
-                </p>
-                <p className="flex items-center text-gray-500 text-sm">
-                  <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-                  {product.rating} ({product.totalReviews})
-                </p>
-                <p className="text-md text-[var(--primary-color)] font-medium">
-                  ₹ {discountedPrice}
-                  <span className="text-md text-gray-500 ml-2 line-through">
-                    ₹ {product.price}
+              return (
+                <motion.div
+                  variants={cardVariant}
+                  className="cursor-pointer flex flex-col gap-2 mb-2"
+                  key={product.productId}
+                >
+                  <div className="group relative overflow-hidden rounded-xl">
+                    <img
+                      src={product.imageUrl}
+                      alt={product.productName}
+                      className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
+                    />
+                    <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                      Best Seller
+                    </button>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className={CardAddToCart}
+                    >
+                      <CgShoppingCart className="text-lg" />
+                      Add to Cart
+                    </button>
+                  </div>
+                  <span className="block text-gray-500 text-sm">
+                    {product.categoryName}
                   </span>
-                </p>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                  <p className="text-sm text-[var(--primary-color)] font-bold">
+                    {product.productName}
+                  </p>
+                  <p className="flex items-center text-gray-500 text-sm">
+                    <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
+                    {product.rating} ({product.totalReviews})
+                  </p>
+                  <p className="text-md text-[var(--primary-color)] font-medium">
+                    ₹ {discountedPrice}
+                    <span className="text-md text-gray-500 ml-2 line-through">
+                      ₹ {product.price}
+                    </span>
+                  </p>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
       </section>
     </>
   );

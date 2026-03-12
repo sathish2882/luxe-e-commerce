@@ -11,6 +11,8 @@ import {
 import { setToken } from "../../utils/authCookies";
 import { toast } from "react-toastify";
 import FormInput from "../../components/formInput/FormInput";
+import { syncCartAfterLogin } from "../../utils/cartHelper";
+import { useDispatch } from "react-redux";
 
 interface LoginFormValues {
   email: string;
@@ -28,6 +30,7 @@ function Login() {
   const [timer, setTimer] = useState<number>(60);
   const [canResend, setCanResend] = useState<boolean>(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
@@ -73,6 +76,7 @@ function Login() {
 
       if (response.data.token) {
         setToken(response.data.token);
+        await syncCartAfterLogin(dispatch)
         toast.success("Login successful");
         navigate("/", { replace: true });
       } else if (response.data.otp_key) {
@@ -99,6 +103,7 @@ function Login() {
       const response = await verifyOtpFor2FA(formData);
       console.log(response);
       setToken(response.data.token);
+      await syncCartAfterLogin(dispatch)
       navigate("/", { replace: true });
       toast.success("OTP Verified Successfully");
     } catch (error: any) {
