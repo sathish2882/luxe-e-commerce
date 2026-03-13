@@ -36,6 +36,7 @@ function Profile() {
 
   const handleLogin = () => {
     navigate("/login");
+
   };
 
   const handleLogout = () => {

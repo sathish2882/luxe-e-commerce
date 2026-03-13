@@ -1,18 +1,23 @@
-import { Button } from "antd";
+import { Button, Skeleton } from "antd";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-
+import { useEffect } from "react";
+import { fetchProducts, fetchProductsByCategory } from "../redux/productSlice";
 import { allProductsGrid, CardAddToCart } from "./home/homeStyle";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { useState } from "react";
-import { useSelector} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import type { AppDispatch } from "../redux/store";
+import { addToCartHandler } from "../utils/cartHelper";
+import { fetchCategory } from "../redux/categorySlice";
+import { useNavigate, useParams } from "react-router-dom";
 
 const containerVariant = {
   hidden: {},
   show: {
+    opacity: 1,
     transition: {
       staggerChildren: 0.2,
     },
@@ -28,23 +33,40 @@ const cardVariant = {
   },
 };
 
-const products = [
-  { id: 1, title: "Headphones", category: "All" },
-  { id: 2, title: "Laptop", category: "Electronics" },
-  { id: 3, title: "Shoes", category: "Clothing" },
-  { id: 4, title: "Watch", category: "Home & Living" },
-  { id: 5, title: "Chair", category: "Accessories" },
-  { id: 6, title: "Football", category: "Sports" },
-];
-
 function Shop() {
-  
-  const [activeCategory, setCategory] = useState<string>("All");
+  const { categoriesId } = useParams();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-  const allProducts = useSelector(
-    (state: RootState) => state.products.products,
+  const { categories, categoryLoading } = useSelector(
+    (state: RootState) => state.categories,
   );
-  console.log(allProducts);
+
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
+
+  const { isLoading, products } = useSelector(
+    (state: RootState) => state.products,
+  );
+
+  const cart = useSelector((state: RootState) => state.cart);
+
+  useEffect(() => {
+    dispatch(fetchCategory());
+    if (categoriesId) {
+      dispatch(fetchProductsByCategory(Number(categoriesId)));
+    } else {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, categoriesId]);
+
+  const handleAddToCart = async (product: any) => {
+    setLoadingProductId(product.productId);
+    try {
+      await addToCartHandler(product, cart, dispatch);
+    } finally {
+      setLoadingProductId(null);
+    }
+  };
 
   return (
     <>
@@ -62,75 +84,123 @@ function Shop() {
           Browse our curated collection of premium products.
         </p>
 
-        <div className="flex items-center flex-wrap gap-3">
-          {products.map((each) => (
+        {categoryLoading ? (
+          <div className="flex items-center flex-wrap gap-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Skeleton.Button
+                key={index}
+                style={{ width: 90 }}
+                active
+                size="default"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center flex-wrap gap-3">
             <Button
-              className={
-                activeCategory === each.category
-                  ? "active-category"
-                  : "filter-btn"
-              }
-              onClick={() => setCategory(each.category)}
+              className={!categoriesId ? "active-category" : "filter-btn"}
+              onClick={() => navigate("/shop")}
               type="primary"
-              key={each.id}
             >
-              {each.category}
+              All
             </Button>
-          ))}
-        </div>
 
-        <motion.div
-          variants={containerVariant}
-          initial="hidden"
-          animate="show"
-          viewport={{ once: true }}
-          className={allProductsGrid}
-        >
-          {allProducts.map((product) => {
-            const discountedPrice = Math.round(
-              product.price * (1 - product.discountPercent / 100),
-            );
-
-            return (
-              <motion.div
-                variants={cardVariant}
-                className="cursor-pointer flex flex-col gap-2 mb-2"
-                key={product.productId}
+            {categories.map((category) => (
+              <Button
+                className={
+                  Number(categoriesId) === category.categoriesId
+                    ? "active-category"
+                    : "filter-btn"
+                }
+                onClick={() => navigate(`/shop/${category.categoriesId}`)}
+                type="primary"
+                key={category.name}
               >
-                <div className="group relative overflow-hidden rounded-xl">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.productName}
-                    className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-                  />
-                  <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                    Best Seller
-                  </button>
-                  <button className={CardAddToCart}>
-                    <CgShoppingCart className="text-lg" />
-                    Add to Cart
-                  </button>
-                </div>
-                <span className="block text-gray-500 text-sm">
-                  {product.categoryName}
-                </span>
-                <p className="text-sm text-[var(--primary-color)] font-bold">
-                  {product.productName}
-                </p>
-                <p className="flex items-center text-gray-500 text-sm">
-                  <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-                  {product.rating} ({product.totalReviews})
-                </p>
-                <p className="text-md text-[var(--primary-color)] font-medium">
-                  ₹ {discountedPrice}
-                  <span className="text-md text-gray-500 ml-2 line-through">
-                    ₹ {product.price}
+                {category.name}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        {isLoading && (
+          <div className="flex justify-center my-4">
+            <div className="loader"></div>
+          </div>
+        )}
+
+        {products.length > 0 && (
+          <motion.div
+            variants={containerVariant}
+            initial="hidden"
+            animate="show"
+            viewport={{ once: true }}
+            className={allProductsGrid}
+          >
+            {products.map((product) => {
+              const discountedPrice = Math.round(
+                product.price * (1 - product.discountPercent / 100),
+              );
+
+              const isInCart = cart.items.some(
+                (item) => item.productId === product.productId,
+              );
+
+              return (
+                <motion.div
+                  variants={cardVariant}
+                  className="cursor-pointer flex flex-col gap-2 mb-2"
+                  onClick={()=> navigate(`/product-details/${product.productId}`)}
+                  key={product.productId}
+                >
+                  <div className="group relative overflow-hidden rounded-xl">
+                    <img
+                      src={product.imageUrl}
+                      alt={product.productName}
+                      className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
+                    />
+                    {product.tag ? (
+                      <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                        {product.tag}
+                      </button>
+                    ) : (
+                      ""
+                    )}
+                    <button
+                      onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
+                      className={CardAddToCart}
+                      disabled={isInCart}
+                    >
+                      {loadingProductId === product.productId ? (
+                        <div className="loader-btn"></div>
+                      ) : (
+                        <div className="flex items-center">
+                          <CgShoppingCart className="text-lg mr-2" />
+                          {isInCart ? "Added" : "Add to Cart"}
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                  <span className="block text-gray-500 text-sm">
+                    {product.categoryName}
                   </span>
-                </p>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                  <p className="text-sm text-[var(--primary-color)] font-bold">
+                    {product.productName}
+                  </p>
+                  <p className="flex items-center text-gray-500 text-sm">
+                    <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
+                    {product.rating} ({product.totalReviews})
+                  </p>
+                  <p className="text-md text-[var(--primary-color)] font-medium">
+                    ₹ {discountedPrice}
+                    <span className="text-md text-gray-500 ml-2 line-through">
+                      ₹ {product.price}
+                    </span>
+                  </p>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
       </section>
     </>
   );

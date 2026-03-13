@@ -1,6 +1,5 @@
 import { Helmet } from "react-helmet-async";
 import { FaArrowLeft } from "react-icons/fa";
-import { ProImg } from "../../utils/images";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { Link } from "react-router-dom";
@@ -8,8 +7,84 @@ import { Button } from "antd";
 import { FiMinus } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import { AddToCart } from "./productDetailsStyle";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { getProductDetails } from "../../services/authApi";
+import { useParams } from "react-router-dom";
+import { Product } from "../../types/authTypes";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { addToCartHandler } from "../../utils/cartHelper";
 
 function ProductDetails() {
+  const dispatch = useDispatch();
+  const { productId } = useParams<{ productId: string }>();
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [qty, setQty] = useState<number>(1);
+
+  const cart = useSelector((state: RootState) => state.cart);
+
+  const discountedPrice = product
+    ? Math.round(product.price * (1 - product.discountPercent / 100))
+    : 0;
+
+  const isInCart = cart.items.some(
+    (item) => item.productId === product?.productId,
+  );
+
+  useEffect(() => {
+    if (product) {
+      const cartItem = cart.items.find(
+        (item) => item.productId === product.productId,
+      );
+
+      if (cartItem) {
+        setQty(cartItem.quantity);
+      }
+    }
+  }, [product, cart]);
+
+  const fetchProductDetails = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getProductDetails(Number(productId));
+
+      setProduct(data);
+    } catch (error: any) {
+      console.log(error);
+      const message = error?.response?.data?.detail || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = async (product: any) => {
+    setLoadingProductId(product.productId);
+    try {
+      await addToCartHandler(product, cart, dispatch, qty);
+    } finally {
+      setLoadingProductId(null);
+    }
+  };
+
+  const handleIncreaseQty = () => {
+    setQty((prev) => prev + 1);
+  };
+
+  const handleDecreaseQty = () => {
+    setQty((prev) => prev - 1);
+  };
+
+  useEffect(() => {
+    if (productId) {
+      fetchProductDetails();
+    }
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -24,30 +99,45 @@ function ProductDetails() {
           <FaArrowLeft className="mr-2" /> Back to shop
         </Link>
 
+        {loading && (
+          <div className="flex justify-center my-6">
+            <div className="loader"></div>
+          </div>
+        )}
+
         <div className="cursor-pointer flex max-lg:flex-col gap-10 my-5 items-center">
-          <div className="group relative overflow-hidden rounded-xl">
-            <img src={ProImg} className="w-full duration-300 rounded-md" />
+          <div className="max-w-160">
+            <img
+              src={product?.imageUrl}
+              className="w-full duration-300 rounded-xl"
+            />
           </div>
           <div className="flex flex-col gap-2 flex-1">
-            <span className="block text-[var(--secondary-color)] font-bold tracking-[2px] text-[13px]">
-              ELECTRONICS
+            <span className="block text-[var(--secondary-color)] font-bold tracking-[2px] text-[15px]">
+              {product?.categoryName}
             </span>
-            <button className="bg-[var(--secondary-color)] w-25 text-white text-sm px-2 rounded-xl">
-              Best Seller
-            </button>
+            {product?.tag ? (
+              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                {product.tag}
+              </button>
+            ) : (
+              ""
+            )}
             <h3 className="text-4xl text-[var(--primary-color)] font-bold max-w-150 my-4">
-              Wireless Noise-Cancelling Headphones
+              {product?.productName}
             </h3>
+            <p className="text-lg">{product?.description}</p>
             <p className="flex items-center text-gray-500 gap-1 text-sm">
               <FaStar className="text-[var(--secondary-color)] mb-[2px] text-md mr-1" />{" "}
-              <span className="text-black text-lg">4.8</span> (2,341 reviews)
+              <span className="text-black text-lg">{product?.rating}</span> (
+              {product?.totalReviews} reviews)
             </p>
 
             <p className="text-3xl text-[var(--primary-color)] font-bold">
-              $249.99
+              ₹ {discountedPrice}
               <span className="text-[20px] font-medium line-through text-gray-500 ml-2">
                 {" "}
-                $349.99
+                ₹ {product?.price}
               </span>
             </p>
             <div className="flex items center gap-4">
@@ -57,24 +147,39 @@ function ProductDetails() {
                     border: "none",
                     background: "transparent",
                     borderWidth: "none",
+                    
                   }}
+                  disabled={isInCart}
+                  onClick={handleDecreaseQty}
                 >
                   <FiMinus />
                 </Button>
-                <span>1</span>
+                <span>{qty}</span>
                 <Button
                   style={{
                     border: "none",
                     background: "transparent",
                     borderWidth: "none",
                   }}
+                  disabled={isInCart}
+                  onClick={handleIncreaseQty}
                 >
                   <FaPlus />
                 </Button>
               </div>
-              <button className={AddToCart}>
-                <CgShoppingCart className="text-lg mr-1 mt-[2px]" />
-                Add to Cart
+              <button
+                onClick={() => handleAddToCart(product)}
+                className={AddToCart}
+                disabled={isInCart}
+              >
+                {loadingProductId === product?.productId ? (
+                  <div className="loader-btn"></div>
+                ) : (
+                  <div className="flex items-center">
+                    <CgShoppingCart className="text-lg mr-2" />
+                    {isInCart ? "Added" : "Add to Cart"}
+                  </div>
+                )}
               </button>
             </div>
           </div>

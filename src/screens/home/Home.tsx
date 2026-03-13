@@ -1,12 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { fetchProducts } from "../../redux/productSlice";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../../redux/store";
+import type { AppDispatch } from "../../redux/store";
 import { Helmet } from "react-helmet-async";
-import { HomeImg, ProImg } from "../../utils/images";
+import { HomeImg } from "../../utils/images";
 import Cookies from "js-cookie";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { FaArrowRight } from "react-icons/fa";
-import { useEffect } from "react";
-import { fetchProducts } from "../../redux/productSlice";
 import {
   ShopNowBtn,
   exploreBtn,
@@ -17,14 +20,17 @@ import {
   allProductsGrid,
 } from "./homeStyle";
 import { motion } from "framer-motion";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/store";
+
+import { addToCartHandler } from "../../utils/cartHelper";
+import { Product } from "../../types/authTypes";
+import { getPopularProducts } from "../../services/authApi";
+import { toast } from "react-toastify";
 
 const containerVariant = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.2,
     },
   },
 };
@@ -41,11 +47,51 @@ const cardVariant = {
 console.log(Cookies.get("token"));
 
 function Home() {
+  const [popularProducts, setPopularProducts] = useState<Product[]>([]);
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
+  const [popularLoading, setPopularLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate()
+
+  const { isLoading, products } = useSelector(
+    (state: RootState) => state.products,
+  );
+
+  const cart = useSelector((state: RootState) => state.cart);
+
+  const slicedProducts = products.slice(0, 8);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  const handleAddToCart = async (product: any) => {
+    setLoadingProductId(product.productId);
+    try {
+      await addToCartHandler(product, cart, dispatch);
+    } finally {
+      setLoadingProductId(null);
+    }
+  };
+
+  const fetchPopularProducts = async () => {
+    setPopularLoading(true);
+    try {
+      const data = await getPopularProducts();
+      console.log(data);
+
+      setPopularProducts(data);
+    } catch (error: any) {
+      const message = error?.response?.data?.detail || "Something went wrong";
+      toast.error(message);
+    } finally {
+      setPopularLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPopularProducts();
+  }, []);
 
   return (
     <>
@@ -57,7 +103,6 @@ function Home() {
         />
       </Helmet>
       <section className={HomeTop}>
-        {/* <div className="loader"></div> */}
         <motion.div
           initial={{ opacity: 0, x: -60 }}
           animate={{ opacity: 1, x: 0 }}
@@ -120,134 +165,82 @@ function Home() {
           Popular Right Now
         </h3>
 
+        {popularLoading && (
+          <div className="flex justify-center my-4">
+            <div className="loader"></div>
+          </div>
+        )}
+
         <motion.div
           variants={containerVariant}
           initial="hidden"
-          whileInView="show"
+          animate="show"
           viewport={{ once: true }}
           className={PopularGrid}
         >
-          <Link to="/product-details">
-            <motion.div
-              variants={cardVariant}
-              className="cursor-pointer flex flex-col gap-2 mb-2"
-            >
-              <div className="group relative overflow-hidden rounded-xl">
-                <img
-                  src={ProImg}
-                  className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-                />
-                <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                  Best Seller
-                </button>
-                <button className={CardAddToCart}>
-                  <CgShoppingCart className="text-lg" />
-                  Add to Cart
-                </button>
-              </div>
-              <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-              <p className="text-sm text-[var(--primary-color)] font-bold">
-                Wireless Noise-Cancelling Headphones
-              </p>
-              <p className="flex items-center text-gray-500 text-sm">
-                <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-                4.8 (2,341)
-              </p>
-              <p className="text-md text-[var(--primary-color)] font-medium">
-                $249.99
-                <span className="text-md text-gray-500 line-through ml-2">
-                  {" "}
-                  $349.99
+          {popularProducts.map((product, index) => {
+            const discountedPrice = Math.round(
+              product.price * (1 - product.discountPercent / 100),
+            );
+            const isInCart = cart.items.some(
+              (item) => item.productId === product.productId,
+            );
+
+            return (
+              <motion.div
+                key={`${product.productId}-${index}`}
+                onClick={()=> navigate(`/product-details/${product.productId}`)}
+                variants={cardVariant}
+                className="cursor-pointer flex flex-col gap-2 mb-2"
+              >
+                <div className="group relative overflow-hidden rounded-xl">
+                  <img
+                    src={product.imageUrl}
+                    className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
+                  />
+
+                  {product.tag ? (
+                    <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                      {product.tag}
+                    </button>
+                  ) : (
+                    ""
+                  )}
+
+                  <button
+                    onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
+                    className={CardAddToCart}
+                    disabled={isInCart}
+                  >
+                    {loadingProductId === product.productId ? (
+                      <div className="loader-btn"></div>
+                    ) : (
+                      <div className="flex items-center">
+                        <CgShoppingCart className="text-lg mr-2" />
+                        {isInCart ? "Added" : "Add to Cart"}
+                      </div>
+                    )}
+                  </button>
+                </div>
+                <span className="block text-gray-500 text-sm">
+                  {product.categoryName}
                 </span>
-              </p>
-            </motion.div>
-          </Link>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                Eco-Friendly
-              </button>
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
+                <p className="text-sm text-[var(--primary-color)] font-bold">
+                  {product.productName}
+                </p>
+                <p className="flex items-center text-gray-500 text-sm">
+                  <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
+                  {product.rating} ({product.totalReviews})
+                </p>
+                <p className="text-md text-[var(--primary-color)] font-medium">
+                  ₹ {discountedPrice}
+                  <span className="text-md text-gray-500 ml-2 line-through">
+                    ₹ {product.price}
+                  </span>
+                </p>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
       <section className="bg-[var(--secondary-color)] text-white text-center py-18">
@@ -262,247 +255,84 @@ function Home() {
       <section className="my-15 px-8 sm:px-10 xl:px-20">
         <h3 className="text-3xl font-bold mb-3 text-black">All Products</h3>
 
-        <motion.div
-          variants={containerVariant}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className={allProductsGrid}
-        >
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                Best Seller
-              </button>
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
+        {isLoading && (
+          <div className="flex justify-center my-4">
+            <div className="loader"></div>
+          </div>
+        )}
 
+        {products.length > 0 && (
           <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
+            variants={containerVariant}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className={allProductsGrid}
           >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
+            {slicedProducts.map((product, index) => {
+              const discountedPrice = Math.round(
+                product.price * (1 - product.discountPercent / 100),
+              );
+              const isInCart = cart.items.some(
+                (item) => item.productId === product.productId,
+              );
 
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
+              return (
+                <motion.div
+                  variants={cardVariant}
+                  className="cursor-pointer flex flex-col gap-2 mb-2"
+                  onClick={()=> navigate(`/product-details/${product.productId}`)}
+                  key={`${product.productId}-${index}`}
+                >
+                  <div className="group relative overflow-hidden rounded-xl">
+                    <img
+                      src={product.imageUrl}
+                      alt={product.productName}
+                      className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
+                    />
+                    {product.tag ? (
+                      <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                        {product.tag}
+                      </button>
+                    ) : (
+                      ""
+                    )}
+                    <button
+                      onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
+                      className={CardAddToCart}
+                      disabled={isInCart}
+                    >
+                      {loadingProductId === product.productId ? (
+                        <div className="loader-btn"></div>
+                      ) : (
+                        <div className="flex items-center">
+                          <CgShoppingCart className="text-lg mr-2" />
+                          {isInCart ? "Added" : "Add to Cart"}
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                  <span className="block text-gray-500 text-sm">
+                    {product.categoryName}
+                  </span>
+                  <p className="text-sm text-[var(--primary-color)] font-bold">
+                    {product.productName}
+                  </p>
+                  <p className="flex items-center text-gray-500 text-sm">
+                    <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
+                    {product.rating} ({product.totalReviews})
+                  </p>
+                  <p className="text-md text-[var(--primary-color)] font-medium">
+                    ₹ {discountedPrice}
+                    <span className="text-md text-gray-500 ml-2 line-through">
+                      ₹ {product.price}
+                    </span>
+                  </p>
+                </motion.div>
+              );
+            })}
           </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                Eco-Friendly
-              </button>
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                Handcrafted
-              </button>
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-              <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                20% Off
-              </button>
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-          <motion.div
-            variants={cardVariant}
-            className="cursor-pointer flex flex-col gap-2 mb-2"
-          >
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src={ProImg}
-                className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-              />
-
-              <button className={CardAddToCart}>
-                <CgShoppingCart className="text-lg" />
-                Add to Cart
-              </button>
-            </div>
-            <span className="block text-gray-500 text-sm">ELECTRONICS</span>
-            <p className="text-sm text-[var(--primary-color)] font-bold">
-              Wireless Noise-Cancelling Headphones
-            </p>
-            <p className="flex items-center text-gray-500 text-sm">
-              <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-              4.8 (2,341)
-            </p>
-            <p className="text-md text-[var(--primary-color)] font-medium">
-              $249.99
-              <span className="text-md text-gray-500 ml-2"> $349.99</span>
-            </p>
-          </motion.div>
-        </motion.div>
+        )}
       </section>
     </>
   );

@@ -1,23 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from "../services/axiosInstance";
+import { Product } from "../types/authTypes";
+import { formatProducts } from "../utils/cardMapper";
 
-interface Product {
-  productId: number
-  productName: string
-  price: number
-  categoryName: string
-  imageUrl: string
-  discountPercent: number
-  totalReviews: number
-  rating: number
-  description: string
-  sku: string
-  status: string
-  createdAt: string
-  updatedAt: string
-  createdBy: number
 
-}
 
 interface ProductState {
   products: Product[];
@@ -30,39 +16,24 @@ export const fetchProducts = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await API.get("/products/all_products");
-      const formattedProducts = response.data.map((product: any) => ({
-        categoryName: product.category_name,
+      return formatProducts(response.data)
 
-        createdAt: product.createdat,
+    } catch (error) {
+      if (error instanceof Error) {
+        return thunkAPI.rejectWithValue(error.message);
+      }
+      return thunkAPI.rejectWithValue("Something went wrong");
+    }
+  },
+);
 
-        createdBy: product.createdby,
 
-        description: product.description,
-
-        discountPercent: product.discount_percent,
-
-        imageUrl: product.image_url,
-
-        price: product.price,
-
-        totalReviews: product.total_reviews,
-
-        rating: product.rating,
-
-        productId: product.product_id,
-
-        productName: product.product_name,
-
-        sku: product.sku,
-
-        status: product.status,
-
-        updatedAt: product.updatedat,
-
-      }));
-      console.log(formattedProducts)
-
-      return formattedProducts
+export const fetchProductsByCategory = createAsyncThunk(
+  "products/fetchProductsByCategory",
+  async (categoryId: number | null, thunkAPI) => {
+    try {
+      const response = await API.get(`/products/products/category/${categoryId}`);
+      return formatProducts(response.data)
 
     } catch (error) {
       if (error instanceof Error) {
@@ -94,6 +65,18 @@ const productSlice = createSlice({
         state.products = action.payload;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+       .addCase(fetchProductsByCategory.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.products = action.payload;
+      })
+      .addCase(fetchProductsByCategory.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

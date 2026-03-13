@@ -1,3 +1,7 @@
 window.appConfig = {
-  baseURL: "http://192.168.5.103:8000"
+  baseURL: "https://ecommerce-backend-mguru.onrender.com",
 };
+
+// window.appConfig = {
+//   baseURL: "http://192.168.5.105:8000"
+// };
