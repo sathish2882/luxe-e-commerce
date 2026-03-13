@@ -1,8 +1,8 @@
-import { Button } from "antd";
+import { Button, Skeleton } from "antd";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
-import { fetchProducts } from "../redux/productSlice";
+import { fetchProducts, fetchProductsByCategory } from "../redux/productSlice";
 import { allProductsGrid, CardAddToCart } from "./home/homeStyle";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
@@ -10,9 +10,9 @@ import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import type { AppDispatch } from "../redux/store";
-import { addToCart, setCart } from "../redux/cartSlice";
-import Cookies from "js-cookie";
-import { getCartApi, updateCartApi } from "../services/authApi";
+import { addToCartHandler } from "../utils/cartHelper";
+import { fetchCategory } from "../redux/categorySlice";
+import { useNavigate, useParams } from "react-router-dom";
 
 const containerVariant = {
   hidden: {},
@@ -34,54 +34,38 @@ const cardVariant = {
 };
 
 function Shop() {
+  const { categoriesId } = useParams();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-  // const [activeCategory, setCategory] = useState<string>("All");
+  const { categories, categoryLoading } = useSelector(
+    (state: RootState) => state.categories,
+  );
+
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
 
   const { isLoading, products } = useSelector(
     (state: RootState) => state.products,
   );
 
-  console.log("products:", products);
-  console.log("loading:", isLoading);
+  const cart = useSelector((state: RootState) => state.cart);
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchCategory());
+    if (categoriesId) {
+      dispatch(fetchProductsByCategory(Number(categoriesId)));
+    } else {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, categoriesId]);
 
   const handleAddToCart = async (product: any) => {
-    const token = Cookies.get("token");
-
-    if (!token) {
-      dispatch(addToCart(product));
-      return;
+    setLoadingProductId(product.productId);
+    try {
+      await addToCartHandler(product, cart, dispatch);
+    } finally {
+      setLoadingProductId(null);
     }
-
-    const currentCart = await getCartApi();
-
-    const updatedItems = currentCart.map((item: any) => ({
-      product_id: item.productId,
-      quantity: item.quantity,
-    }));
-
-    const existing = updatedItems.find(
-      (item) => item.product_id === product.productId,
-    );
-
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      updatedItems.push({
-        product_id: product.productId,
-        quantity: 1,
-      });
-    }
-
-    await updateCartApi(updatedItems);
-
-    const newCart = await getCartApi();
-
-    dispatch(setCart(newCart));
   };
 
   return (
@@ -100,34 +84,55 @@ function Shop() {
           Browse our curated collection of premium products.
         </p>
 
+        {categoryLoading ? (
+          <div className="flex items-center flex-wrap gap-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Skeleton.Button
+                key={index}
+                style={{ width: 90 }}
+                active
+                size="default"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center flex-wrap gap-3">
+            <Button
+              className={!categoriesId ? "active-category" : "filter-btn"}
+              onClick={() => navigate("/shop")}
+              type="primary"
+            >
+              All
+            </Button>
+
+            {categories.map((category) => (
+              <Button
+                className={
+                  Number(categoriesId) === category.categoriesId
+                    ? "active-category"
+                    : "filter-btn"
+                }
+                onClick={() => navigate(`/shop/${category.categoriesId}`)}
+                type="primary"
+                key={category.name}
+              >
+                {category.name}
+              </Button>
+            ))}
+          </div>
+        )}
+
         {isLoading && (
           <div className="flex justify-center my-4">
             <div className="loader"></div>
           </div>
         )}
 
-        {/* <div className="flex items-center flex-wrap gap-3">
-          {products.map((each) => (
-            <Button
-              className={
-                activeCategory === each.categoryName
-                  ? "active-category"
-                  : "filter-btn"
-              }
-              onClick={() => setCategory(each.categoryName)}
-              type="primary"
-              key={each.categoryName}
-            >
-              {each.categoryName}
-            </Button>
-          ))}
-        </div> */}
-
         {products.length > 0 && (
           <motion.div
             variants={containerVariant}
             initial="hidden"
-           animate="show"
+            animate="show"
             viewport={{ once: true }}
             className={allProductsGrid}
           >
@@ -136,10 +141,15 @@ function Shop() {
                 product.price * (1 - product.discountPercent / 100),
               );
 
+              const isInCart = cart.items.some(
+                (item) => item.productId === product.productId,
+              );
+
               return (
                 <motion.div
                   variants={cardVariant}
                   className="cursor-pointer flex flex-col gap-2 mb-2"
+                  onClick={()=> navigate(`/product-details/${product.productId}`)}
                   key={product.productId}
                 >
                   <div className="group relative overflow-hidden rounded-xl">
@@ -148,15 +158,26 @@ function Shop() {
                       alt={product.productName}
                       className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
                     />
-                    <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                      Best Seller
-                    </button>
+                    {product.tag ? (
+                      <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
+                        {product.tag}
+                      </button>
+                    ) : (
+                      ""
+                    )}
                     <button
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
                       className={CardAddToCart}
+                      disabled={isInCart}
                     >
-                      <CgShoppingCart className="text-lg" />
-                      Add to Cart
+                      {loadingProductId === product.productId ? (
+                        <div className="loader-btn"></div>
+                      ) : (
+                        <div className="flex items-center">
+                          <CgShoppingCart className="text-lg mr-2" />
+                          {isInCart ? "Added" : "Add to Cart"}
+                        </div>
+                      )}
                     </button>
                   </div>
                   <span className="block text-gray-500 text-sm">

@@ -1,5 +1,6 @@
 import API from "./axiosInstance";
-import { mapCartApiToClient } from "../utils/cardMapper";
+import { formatProducts, mapCartApiToClient,formatOneProduct } from "../utils/cardMapper";
+
 
 export const loginApi = (data: FormData) => {
   return API.post("/login", data);
@@ -41,8 +42,18 @@ export const getCartApi = async() => {
   return mapCartApiToClient(response.data)
 };
 
-// export const removeCartApi = (productId: number) => {
-//   return API.delete("/cart/remove",{productId});
-// };
+export const getPopularProducts = async() => {
+  const response = await API.get("/products/get_popular_products");
+  return formatProducts(response.data)
+};
+
+export const getProductDetails = async(productId:number) => {
+  const response = await API.get(`/products/products/${productId}`);
+  return formatOneProduct(response.data)
+};
+
+
+
+
 
 

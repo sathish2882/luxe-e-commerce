@@ -1,1 +1,1 @@
-export const AddToCart = "flex items-center text-white justify-center py-2 px-3 bg-[var(--secondary-color)] rounded-3xl w-full"
+export const AddToCart = "flex items-center text-white justify-center py-2 px-3 bg-[var(--secondary-color)] rounded-3xl w-full cursor-pointer"

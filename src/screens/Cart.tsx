@@ -14,10 +14,14 @@ import {
 } from "../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { getCartApi, updateCartApi } from "../services/authApi";
+import { useState } from "react";
 
 function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const cart = useSelector((state: RootState) => state.cart);
 
@@ -38,19 +42,24 @@ function Cart() {
       return;
     }
 
-    const updatedItems = cart.items.map((item: any) => ({
-      product_id: item.productId,
-      quantity:
-        item.productId === product.productId
-          ? item.quantity + 1
-          : item.quantity,
-    }));
+    
+    try {
+      setLoadingProductId(product.productId);
+      const updatedItems = cart.items.map((item) => ({
+        product_id: item.productId,
+        quantity:
+          item.productId === product.productId
+            ? item.quantity + 1
+            : item.quantity,
+      }));
 
+      await updateCartApi(updatedItems);
 
-    await updateCartApi(updatedItems);
-
-    const data = await getCartApi();
-    dispatch(setCart(data));
+      const data = await getCartApi();
+      dispatch(setCart(data));
+    } finally {
+      setLoadingProductId(null);
+    }
   };
 
   const handleDecreaseQty = async (product: any) => {
@@ -63,32 +72,96 @@ function Cart() {
 
     
 
-    const currentCart = await getCartApi();
+    try {
+      setLoadingProductId(product.productId);
+      if (cart.items.length === 1 && cart.items[0].quantity === 1) {
+        await updateCartApi([]);
 
-    const updatedItems = currentCart.map((item) => ({
-      product_id: item.productId,
-      quantity: item.quantity,
-    }));
+        dispatch(clearCart());
 
-    const index = updatedItems.findIndex(
-      (item) => item.product_id === product.productId,
-    );
-
-    if (index !== -1) {
-      if (updatedItems[index].quantity > 1) {
-        updatedItems[index].quantity -= 1;
-      } else {
-        updatedItems.splice(index, 1);
+        return;
       }
+      const updatedItems = cart.items.map((item) => ({
+        product_id: item.productId,
+        quantity: item.quantity,
+      }));
+
+      const index = updatedItems.findIndex(
+        (item) => item.product_id === product.productId,
+      );
+
+      if (index !== -1) {
+        if (updatedItems[index].quantity > 1) {
+          updatedItems[index].quantity -= 1;
+        } else {
+          updatedItems.splice(index, 1);
+        }
+      }
+
+      await updateCartApi(updatedItems);
+
+      const data = await getCartApi();
+
+      dispatch(setCart(data));
+    } finally {
+      setLoadingProductId(null);
+    }
+  };
+
+  const handleRemoveItem = async (product: any) => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      dispatch(removeFromCart(product.productId));
+      return;
     }
 
     
 
-    await updateCartApi(updatedItems);
+    try {
+      setLoadingProductId(product.productId);
+      if (cart.items.length === 1) {
+        await updateCartApi([]);
 
-    const data = await getCartApi();
+        dispatch(clearCart());
 
-    dispatch(setCart(data));
+        return;
+      }
+      const updatedItems = cart.items
+        .filter((item) => item.productId !== product.productId)
+        .map((item) => ({
+          product_id: item.productId,
+          quantity: item.quantity,
+        }));
+
+      await updateCartApi(updatedItems);
+
+      const data = await getCartApi();
+
+      dispatch(setCart(data));
+    } finally {
+      setLoadingProductId(null);
+    }
+  };
+
+  const handleClearCart = async () => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      dispatch(clearCart());
+      return;
+    }
+
+    
+
+    try {
+      setLoading(true);
+      await updateCartApi([]);
+
+      dispatch(clearCart());
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -123,6 +196,9 @@ function Cart() {
             <div className="grid md:grid-cols-3 gap-6 mt-8">
               <div className="md:col-span-2 space-y-4">
                 {cart.items.map((item, index) => {
+                  const discountedPrice = Math.round(
+                    item.price * (1 - item.discountPercent / 100),
+                  );
                   return (
                     <div
                       key={`${item.productId}-${index}`}
@@ -131,8 +207,9 @@ function Cart() {
                       <div className="w-24 h-24 flex items-center justify-center">
                         <img
                           src={item.imageUrl}
+                          onClick={()=> navigate(`/product-details/${item.productId}`)}
                           alt="img"
-                          className="h-25 min-w-25 object-contain m-2 rounded-xl"
+                          className="h-25 min-w-25 object-contain m-2 rounded-xl cursor-pointer"
                         />
                       </div>
 
@@ -146,7 +223,7 @@ function Cart() {
 
                         <div className="flex items-center justify-between max-sm:flex-col w-full">
                           <div className="flex flex-col">
-                            <div className="flex justify-start max-sm:justify-center items-center gap-3 mt-3 border border-1 border-gray-200 rounded-2xl">
+                            <div className="flex justify-center max-sm:justify-center items-center gap-3 mt-3 border border-1 border-gray-200 rounded-2xl h-9 w-30">
                               <button
                                 onClick={() => handleDecreaseQty(item)}
                                 className="px-3 py-1 hover:bg-gray-300 rounded-2xl cursor-pointer m-[1px]"
@@ -154,9 +231,13 @@ function Cart() {
                                 -
                               </button>
 
-                              <span className="font-semibold">
-                                {item.quantity}
-                              </span>
+                              {loadingProductId === item.productId ? (
+                                <div className="loader-btn text-center"></div>
+                              ) : (
+                                <span className="font-semibold text-center w-[40px]">
+                                  {item.quantity}
+                                </span>
+                              )}
 
                               <button
                                 onClick={() => handleIncreaseQty(item)}
@@ -167,15 +248,16 @@ function Cart() {
                             </div>
                           </div>
 
-                          <p className="block mt-3 text-md font-bold">
-                            ₹ {item.price}
+                          <p className="text-md text-[var(--primary-color)] font-medium">
+                            ₹ {discountedPrice}
+                            <span className="text-md text-gray-500 ml-2 line-through">
+                              ₹ {item.price}
+                            </span>
                           </p>
 
                           <button
                             type="button"
-                            onClick={() =>
-                              dispatch(removeFromCart(item.productId))
-                            }
+                            onClick={() => handleRemoveItem(item)}
                             className="text-red-500 hover:text-red-700 text-2xl font-semibold block mt-3 cursor-pointer"
                           >
                             <RiDeleteBinLine />
@@ -220,10 +302,16 @@ function Cart() {
                 </button>
 
                 <button
-                  onClick={() => dispatch(clearCart())}
+                  onClick={handleClearCart}
                   className="w-full mt-3 text-gray-400 py-2 text-sm transition font-semibold cursor-pointer"
                 >
-                  Clear Cart
+                  {loading ? (
+                    <div className="flex justify-center">
+                      <div className="loader-btn text-center"></div>
+                    </div>
+                  ) : (
+                    <span>Clear Cart</span>
+                  )}
                 </button>
               </div>
             </div>

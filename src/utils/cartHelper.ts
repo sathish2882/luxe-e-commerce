@@ -2,7 +2,7 @@ import { getCartApi, updateCartApi } from "../services/authApi";
 import { setCart } from "../redux/cartSlice";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-
+import { addToCart } from "../redux/cartSlice";
 export const syncCartAfterLogin = async (dispatch: any) => {
   console.log("products loaded in backedn cart");
 
@@ -34,4 +34,42 @@ export const syncCartAfterLogin = async (dispatch: any) => {
     toast.error(message);
     console.log(error);
   }
+};
+
+export const addToCartHandler = async (
+  product: any,
+  cart: any,
+  dispatch: any,
+  quantity: number = 1
+) => {
+  const token = Cookies.get("token");
+
+  if (!token) {
+    dispatch(addToCart({...product,quantity}));
+    return;
+  }
+
+  const updatedItems = cart.items.map((item:any) => ({
+    product_id: item.productId,
+    quantity: item.quantity,
+  }));
+
+  const existing = updatedItems.find(
+    (item:any) => item.product_id === product.productId,
+  );
+
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    updatedItems.push({
+      product_id: product.productId,
+      quantity: quantity,
+    });
+  }
+
+  await updateCartApi(updatedItems);
+
+  const newCart = await getCartApi();
+
+  dispatch(setCart(newCart));
 };

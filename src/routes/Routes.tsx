@@ -33,6 +33,10 @@ export const router = createHashRouter([
         element: <Shop />,
       },
       {
+        path: "shop/:categoriesId",
+        element: <Shop />,
+      },
+      {
         path: "categories",
         element: <Categories />,
       },
@@ -41,7 +45,7 @@ export const router = createHashRouter([
         element: <About />,
       },
       {
-        path: "/product-details",
+        path: "/product-details/:productId",
         element: <ProductDetails />,
       },
       {

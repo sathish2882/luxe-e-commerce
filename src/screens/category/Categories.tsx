@@ -1,13 +1,18 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { CategoryGrid, CategoryImg } from "./categoriesStyle";
-import { ProImg } from "../../utils/images";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategory } from "../../redux/categorySlice";
+import { useNavigate } from "react-router-dom";
+
+import { AppDispatch, RootState } from "../../redux/store";
 
 const containerVariant = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.2,
     },
   },
 };
@@ -21,16 +26,17 @@ const cardVariant = {
   },
 };
 
-const products = [
-  { id: 1, title: "Headphones", category: "All" },
-  { id: 2, title: "Laptop", category: "Electronics" },
-  { id: 3, title: "Shoes", category: "Clothing" },
-  { id: 4, title: "Watch", category: "Home & Living" },
-  { id: 5, title: "Chair", category: "Accessories" },
-  { id: 6, title: "Football", category: "Sports" },
-];
-
 function Categories() {
+  const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>()
+  const { categoryLoading, categories } = useSelector(
+    (state: RootState) => state.categories,
+  );
+
+  useEffect(() => {
+    dispatch(fetchCategory());
+  }, [dispatch]);
+
   return (
     <>
       <Helmet>
@@ -48,31 +54,38 @@ function Categories() {
           Browse products by category.
         </p>
 
+        {categoryLoading && (
+          <div className="flex justify-center my-4">
+            <div className="loader"></div>
+          </div>
+        )}
+
         <motion.div
           variants={containerVariant}
           initial="hidden"
-          whileInView="show"
+          animate="show"
           viewport={{ once: true }}
           className={CategoryGrid}
         >
-          {products.map((each) =>
-            each.category !== "All" ? (
-              <motion.div
-                variants={cardVariant}
-                key={each.id}
-                className="cursor-pointer flex flex-col gap-2 mb-2"
-              >
-                <div className="group relative overflow-hidden rounded-xl max-h-75">
-                  <img src={ProImg} className={CategoryImg} />
-                  <h3 className="text-white text-2xl font-bold absolute left-5 bottom-5">
-                    {each.category}
-                  </h3>
-                </div>
-              </motion.div>
-            ) : (
-              ""
-            ),
-          )}
+          {categories.map((category) => (
+            <motion.div
+              variants={cardVariant}
+              key={category.categoriesId}
+              className="cursor-pointer flex flex-col gap-2 mb-2"
+            >
+              <div className="group relative overflow-hidden rounded-xl h-64">
+                <img
+                  src={category.imageUrl}
+                  alt={category.name}
+                  className={CategoryImg}
+                  onClick={()=>{navigate(`/shop/${category.categoriesId}`)}}
+                />
+                <h3 className="text-orange-500 text-2xl font-bold absolute left-5 bottom-5">
+                  {category.name}
+                </h3>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
       </section>
     </>
