@@ -38,10 +38,6 @@ function Profile() {
     navigate("/login");
 
   };
-  const handle = () => {
-    navigate("/login");
-
-  };
 
 
   const handleLogout = () => {
