@@ -59,3 +59,15 @@ export interface MyOrders {
   createdAt: string;
   createdBy: string;
 }
+
+export interface OrderItems {
+  orderItemsId: number;
+  orderId: number;
+  productId: number;
+  productName: string;
+  imageUrl: string;
+  category: string;
+  price: number;
+  quantity: number
+  totalPrice: number;
+}

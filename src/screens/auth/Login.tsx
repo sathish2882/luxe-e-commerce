@@ -75,16 +75,16 @@ function Login() {
       formData.append("password", values.password);
 
       const response = await loginApi(formData);
-      console.log(response)
+      console.log(response.data)
 
       if (response.data.token) {
         setToken(response.data.token);
         if (cart.items.length !== 0){
           await syncCartAfterLogin(dispatch)
         }
-        
         toast.success("Login successful");
         navigate("/", { replace: true });
+        
       } else if (response.data.otp_key) {
         setOtpKey(response.data.otp_key);
         toast.success("OTP sent to your email");
@@ -93,6 +93,7 @@ function Login() {
     } catch (error: any) {
       const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
+      console.log(message)
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ function Login() {
       const formData = new FormData();
       formData.append("otp", values.otp);
       formData.append("otp_key", otpKey);
-
+      console.log("api call")
       const response = await verifyOtpFor2FA(formData);
       console.log(response);
       setToken(response.data.token);

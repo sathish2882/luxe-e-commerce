@@ -24,7 +24,7 @@ API.interceptors.request.use(
 API.interceptors.response.use(
     (response) => response,
     (error) =>{
-        if(error.response?.status === 401){
+        if (error.response?.status === 401 && error.config?.url !== "/login"){
             Cookies.remove("token")
             window.location.href = "/login"
             return Promise.reject(error)

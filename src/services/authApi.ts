@@ -6,6 +6,7 @@ import {
   formatProductIds,
   formatAddress,
   formatOrders,
+  formatOrderItems,
 } from "../utils/cardMapper";
 
 export const loginApi = (data: FormData) => {
@@ -64,6 +65,11 @@ export const getPopularProducts = async () => {
 export const getOrdersApi = async () => {
   const response = await API.get("/orders/my");
   return formatOrders(response.data);
+};
+
+export const getOrdersItemsApi = async (orderId:number) => {
+  const response = await API.get(`/order-items/${orderId}`);
+  return formatOrderItems(response.data);
 };
 
 export const getSearchProducts = async (query: string | null) => {

@@ -126,3 +126,17 @@ export const formatOrders = (data: any[]) => {
     createdBy: item.created_by,
   }));
 };
+
+export const formatOrderItems = (data: any[]) => {
+  return data.map((item) => ({
+    orderItemsId: item.orderitems_id,
+    orderId: item.order_id,
+    productId: item.product_id,
+    productName: item.product_name,
+    imageUrl: item.image_url,
+    category: item.category,
+    price: item.price,
+    quantity: item.quantity,
+    totalPrice: item.total_price,
+  }));
+};
