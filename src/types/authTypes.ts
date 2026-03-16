@@ -13,7 +13,7 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   createdBy: number;
-  tag: string
+  tag: string;
 }
 
 export interface Category {
@@ -23,5 +23,39 @@ export interface Category {
   updatedAt: string;
   categoriesId: number;
   imageUrl: string;
+  createdBy: string;
+}
+
+export interface AddressFields {
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+  isDefault: boolean;
+}
+
+export interface MyAddress {
+  id: number;
+  userId: number;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+  isDefault: boolean;
+}
+
+export interface MyOrders {
+  orderId: number;
+  shippingAddress: number;
+  status: string;
+  updatedAt: string;
+  userId: number;
+  totalPrice: number;
+  orderStatus: string;
+  createdAt: string;
   createdBy: string;
 }

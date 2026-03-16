@@ -1,72 +1,96 @@
-import { Link } from "react-router-dom"
-import { NoOrders } from "../utils/images"
-
-interface Order {
-  id: string
-  date: string
-  total: number
-  status: string
-}
-
-const orders = [1]
+import { Link } from "react-router-dom";
+import { NoOrders } from "../utils/images";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
+import { getOrdersApi } from "../services/authApi";
+import { MyOrders } from "../types/authTypes";
 
 function Orders() {
+  const [orders, setOrders] = useState<MyOrders[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState<boolean>(false);
 
-  if (orders.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
-        <img
-          src={NoOrders}
-          alt="no orders"
-          className="w-50 mb-6"
-        />
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const data = await getOrdersApi();
+      setOrders(data)
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+      setOrders([]); 
+    } else {
+      const message = error?.response?.data?.detail || "Something went wrong";
+      toast.error(message);
+    }
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
 
-        <h2 className="text-2xl font-semibold mb-2">
-          No Orders Yet
-        </h2>
-
-        <p className="text-gray-500 mb-6">
-          Looks like you haven't placed any orders.
-        </p>
-
-        <Link
-          to="/shop"
-          className="bg-[var(--secondary-color)] text-white px-6 py-3 rounded-lg hover:bg-orange-400 transition"
-        >
-          Start Shopping
-        </Link>
-      </div>
-    )
-  }
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      fetchOrders();
+    }
+  }, []);
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">
-        My Orders
-      </h1>
+    <div className="my-15 px-8 sm:px-10 xl:px-20 flex flex-col gap-5">
+      <h1 className="text-2xl font-bold mb-6">My Orders</h1>
 
-      
-        <div
-          
-          className="border rounded-lg p-4 mb-4 flex justify-between items-center"
-        >
-          <div>
-            <p className="font-semibold">Order #{Date.now()}</p>
-            <p className="text-sm text-gray-500">
-              06/03/2026
-            </p>
-          </div>
-
-          <div>
-            <p className="font-semibold">$249.99</p>
-            <p className="text-green-600 text-sm">
-               Shipped
-            </p>
-          </div>
+      {ordersLoading && (
+        <div className="flex justify-center my-4">
+          <div className="loader"></div>
         </div>
- 
+      )}
+
+      {orders.length > 0 && !ordersLoading ? (
+        orders.map((order) => (
+          <div key={order.orderId} className="border rounded-xl p-4 shadow-sm bg-white w-full flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-orange-600 text-lg">
+                Order #{order.orderId}
+              </h3>
+              <span className="text-sm text-blue-600 font-semibold">
+                {order.orderStatus}
+              </span>
+            </div>
+
+            <p className="text-sm text-gray-500">
+              Placed on: {new Date(order.createdAt).toLocaleDateString()}
+            </p>
+
+            <div className="flex justify-between max-sm:flex-col items-center mt-4">
+              <span className="font-bold text-lg text-[var(--primary-color)]">
+                ₹ {order.totalPrice}
+              </span>
+
+              <span className="text-sm text-gray-500">
+                Updated: {new Date(order.updatedAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        ))
+      ) : (
+        <section className="flex flex-col items-center justify-center text-center my-15 px-8 sm:px-10 xl:px-20">
+          <img src={NoOrders} alt="no orders" className="w-50 mb-6" />
+
+          <h2 className="text-2xl font-semibold mb-2">No Orders Yet</h2>
+
+          <p className="text-gray-500 mb-6">
+            Looks like you haven't placed any orders.
+          </p>
+
+          <Link
+            to="/shop"
+            className="bg-[var(--secondary-color)] text-white px-6 py-3 rounded-lg hover:bg-orange-400 transition"
+          >
+            Start Shopping
+          </Link>
+        </section>
+      )}
     </div>
-  )
+  );
 }
 
-export default Orders
+export default Orders;

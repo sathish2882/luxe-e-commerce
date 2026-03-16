@@ -5,12 +5,16 @@ import { IoSearch } from "react-icons/io5";
 import { LuX } from "react-icons/lu";
 import { FaRegUser } from "react-icons/fa";
 import { CgShoppingCart } from "react-icons/cg";
-import  Profile  from "../../screens/Profile";
-import { SearchInput, ProfileView, MobileView, Icons, CloseMenu } from "./NavbarStyle";
+import Profile from "../../screens/Profile";
+import {
+  ProfileView,
+  MobileView,
+  Icons,
+  CloseMenu,
+} from "./NavbarStyle";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-
-
+import SearchBar from "../search/SearchInput";
 
 export const Navlink = ({ isActive }: any) =>
   isActive
@@ -37,7 +41,11 @@ function Navbar() {
     <>
       <header className="sticky z-40 top-0 backdrop-blur-md bg-[rgb(249,248,245)]/80">
         <nav className="flex items-center justify-between h-16 px-10 sm:px-10 xl:px-20">
-          <button aria-label="menu btn" className="md:hidden text-xl" onClick={handleMenu}>
+          <button
+            aria-label="menu btn"
+            className="md:hidden text-xl"
+            onClick={handleMenu}
+          >
             <LuMenu />
           </button>
           <Link to="/">
@@ -61,7 +69,11 @@ function Navbar() {
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 lg:gap-7">
-            <button aria-label="search btn" className="flex items-center" onClick={handleSearch}>
+            <button
+              aria-label="search btn"
+              className="flex items-center"
+              onClick={handleSearch}
+            >
               {isSearchOpen ? (
                 <LuX className={Icons} />
               ) : (
@@ -77,12 +89,14 @@ function Navbar() {
             </div>
 
             <div className="relative">
-            <Link to="/cart">
-              <CgShoppingCart className={`max-sm:hidden ${Icons}`} />
-            </Link>
-               {totalQty > 0 && (
-                <span className="hidden sm:flex absolute md:-top-1 sm:-top-2 md:-right-1 sm:-right-2 bg-orange-500 text-white text-xs w-5 h-5 rounded-full items-center justify-center">{totalQty}</span>
-               )}
+              <Link to="/cart">
+                <CgShoppingCart className={`max-sm:hidden ${Icons}`} />
+              </Link>
+              {totalQty > 0 && (
+                <span className="hidden sm:flex absolute md:-top-1 sm:-top-2 md:-right-1 sm:-right-2 bg-orange-500 text-white text-xs w-5 h-5 rounded-full items-center justify-center">
+                  {totalQty}
+                </span>
+              )}
             </div>
           </div>
         </nav>
@@ -92,11 +106,7 @@ function Navbar() {
             isSearchOpen ? "flex items-center justify-center mb-3" : ""
           }
         >
-          <input
-            className={isSearchOpen ? `${SearchInput}` : "hidden"}
-            placeholder="Search products..."
-            type="search"
-          />
+        <SearchBar isSearchOpen={isSearchOpen} />
         </div>
       </header>
 
@@ -137,10 +147,17 @@ function Navbar() {
             <NavLink className={Navlink} to="/about" onClick={handleMenu}>
               About
             </NavLink>
-            <NavLink className={`${Navlink} flex items-center`} to="/cart" onClick={handleMenu}>
-              Cart {totalQty > 0 && (
-                <span className="sm:hidden flex bg-orange-500 text-white text-xs w-5 h-5 rounded-full items-center justify-center ml-1">{totalQty}</span>
-               )}
+            <NavLink
+              className={`${Navlink} flex items-center`}
+              to="/cart"
+              onClick={handleMenu}
+            >
+              Cart{" "}
+              {totalQty > 0 && (
+                <span className="sm:hidden flex bg-orange-500 text-white text-xs w-5 h-5 rounded-full items-center justify-center ml-1">
+                  {totalQty}
+                </span>
+              )}
             </NavLink>
           </div>
         </div>

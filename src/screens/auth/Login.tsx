@@ -75,6 +75,7 @@ function Login() {
       formData.append("password", values.password);
 
       const response = await loginApi(formData);
+      console.log(response)
 
       if (response.data.token) {
         setToken(response.data.token);

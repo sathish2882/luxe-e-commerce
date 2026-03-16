@@ -1,8 +1,9 @@
 import { getCartApi, updateCartApi } from "../services/authApi";
 import { setCart } from "../redux/cartSlice";
-import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { addToCart } from "../redux/cartSlice";
+
+
 export const syncCartAfterLogin = async (dispatch: any) => {
   console.log("products loaded in backedn cart");
 
@@ -30,8 +31,7 @@ export const syncCartAfterLogin = async (dispatch: any) => {
 
     dispatch(setCart(data));
   } catch (error: any) {
-    const message = error?.response?.data?.detail || "Something went wrong";
-    toast.error(message);
+    //const message = error?.response?.data?.detail || "Something went wrong";
     console.log(error);
   }
 };

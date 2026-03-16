@@ -38,15 +38,23 @@ export const formatProducts = (data: any[]) => {
     sku: product.sku,
 
     status: product.status,
-     
+
     tag: product.tag,
 
     updatedAt: product.updatedat,
   }));
 };
 
+export const formatProductIds = (data: any[]) => {
+  return data.map((product) => ({
+    productId: product.product_id,
+
+    productName: product.product_name,
+  }));
+};
+
 export const formatOneProduct = (product: any) => {
-  return ({
+  return {
     categoryName: product.category_name,
 
     createdAt: product.createdat,
@@ -72,11 +80,11 @@ export const formatOneProduct = (product: any) => {
     sku: product.sku,
 
     status: product.status,
-     
+
     tag: product.tag,
 
     updatedAt: product.updatedat,
-  })
+  };
 };
 
 export const formatCategory = (data: any[]) => {
@@ -87,6 +95,34 @@ export const formatCategory = (data: any[]) => {
     updatedAt: item.updated_at,
     categoriesId: item.categories_id,
     imageUrl: item.image_url,
+    createdBy: item.created_by,
+  }));
+};
+
+export const formatAddress = (data: any[]) => {
+  return data.map((item) => ({
+    id: item.id,
+    userId: item.user_id,
+    addressLine1: item.address_line1,
+    addressLine2: item.address_line2,
+    city: item.city,
+    state: item.state,
+    country: item.country,
+    pincode: item.pincode,
+    isDefault: item.isdefault,
+  }));
+};
+
+export const formatOrders = (data: any[]) => {
+  return data.map((item) => ({
+    orderId: item.order_id,
+    shippingAddress: item.shipping_address,
+    status: item.status,
+    updatedAt: item.updated_at,
+    userId: item.user_id,
+    totalPrice: item.total_price,
+    orderStatus: item.order_status,
+    createdAt: item.created_at,
     createdBy: item.created_by,
   }));
 };
