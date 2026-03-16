@@ -3,9 +3,8 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import { fetchProducts, fetchProductsByCategory } from "../redux/productSlice";
-import { allProductsGrid, CardAddToCart } from "./home/homeStyle";
-import { CgShoppingCart } from "react-icons/cg";
-import { FaStar } from "react-icons/fa6";
+import { allProductsGrid } from "./home/homeStyle";
+import ProductCard from "../components/card/ProductCard";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
@@ -21,15 +20,6 @@ const containerVariant = {
     transition: {
       staggerChildren: 0.2,
     },
-  },
-};
-
-const cardVariant = {
-  hidden: { opacity: 0, y: 40 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6 },
   },
 };
 
@@ -136,69 +126,14 @@ function Shop() {
             viewport={{ once: true }}
             className={allProductsGrid}
           >
-            {products.map((product) => {
-              const discountedPrice = Math.round(
-                product.price * (1 - product.discountPercent / 100),
-              );
-
-              const isInCart = cart.items.some(
-                (item) => item.productId === product.productId,
-              );
-
-              return (
-                <motion.div
-                  variants={cardVariant}
-                  className="cursor-pointer flex flex-col gap-2 mb-2"
-                  onClick={()=> navigate(`/product-details/${product.productId}`)}
-                  key={product.productId}
-                >
-                  <div className="group relative overflow-hidden rounded-xl">
-                    <img
-                      src={product.imageUrl}
-                      alt={product.productName}
-                      className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-                    />
-                    {product.tag ? (
-                      <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                        {product.tag}
-                      </button>
-                    ) : (
-                      ""
-                    )}
-                    <button
-                      onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
-                      className={CardAddToCart}
-                      disabled={isInCart}
-                    >
-                      {loadingProductId === product.productId ? (
-                        <div className="loader-btn"></div>
-                      ) : (
-                        <div className="flex items-center">
-                          <CgShoppingCart className="text-lg mr-2" />
-                          {isInCart ? "Added" : "Add to Cart"}
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                  <span className="block text-gray-500 text-sm">
-                    {product.categoryName}
-                  </span>
-                  <p className="text-sm text-[var(--primary-color)] font-bold">
-                    {product.productName}
-                  </p>
-                  <p className="flex items-center text-gray-500 text-sm">
-                    <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-                    {product.rating} ({product.totalReviews})
-                  </p>
-                  <p className="text-md text-[var(--primary-color)] font-medium">
-                    ₹ {discountedPrice}
-                    <span className="text-md text-gray-500 ml-2 line-through">
-                      ₹ {product.price}
-                    </span>
-                  </p>
-                </motion.div>
-              );
-            })}
+            {products.map((product, index) => (
+              <ProductCard
+                key={`${product.productId}-${index}`}
+                product={product}
+                loadingProductId={loadingProductId}
+                handleAddToCart={handleAddToCart}
+              />
+            ))}
           </motion.div>
         )}
       </section>

@@ -13,8 +13,16 @@ import {
   setCart,
 } from "../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { getCartApi, updateCartApi } from "../services/authApi";
-import { useState } from "react";
+import {
+  checkoutApi,
+  getCartApi,
+  getMyAddress,
+  updateCartApi,
+} from "../services/authApi";
+import { useEffect, useState } from "react";
+import { Button, Radio } from "antd";
+import { MyAddress } from "../types/authTypes";
+import { toast } from "react-toastify";
 
 function Cart() {
   const dispatch = useDispatch();
@@ -22,15 +30,33 @@ function Cart() {
 
   const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [addressLoading, setAddressLoading] = useState<boolean>(false);
+  const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
+  const [addresses, setAddresses] = useState<MyAddress[]>([]);
 
+  console.log(addresses);
   const cart = useSelector((state: RootState) => state.cart);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const token = Cookies.get("token");
     if (!token) {
       navigate("/login");
-    } else {
-      navigate("/place-order");
+      return;
+    }
+
+    if (selectedAddress !== null) {
+      try {
+        const address = addresses[selectedAddress];
+        console.log(address);
+        console.log(selectedAddress);
+        const response = await checkoutApi(address.id);
+        toast.success(response.data.msg);
+        dispatch(clearCart());
+      } catch (error: any) {
+        console.log(error);
+        const message = error?.response?.data?.detail || "Something went wrong";
+        toast.error(message);
+      }
     }
   };
 
@@ -42,7 +68,6 @@ function Cart() {
       return;
     }
 
-    
     try {
       setLoadingProductId(product.productId);
       const updatedItems = cart.items.map((item) => ({
@@ -69,8 +94,6 @@ function Cart() {
       dispatch(decreaseQty(product.productId));
       return;
     }
-
-    
 
     try {
       setLoadingProductId(product.productId);
@@ -116,8 +139,6 @@ function Cart() {
       return;
     }
 
-    
-
     try {
       setLoadingProductId(product.productId);
       if (cart.items.length === 1) {
@@ -152,8 +173,6 @@ function Cart() {
       return;
     }
 
-    
-
     try {
       setLoading(true);
       await updateCartApi([]);
@@ -163,6 +182,39 @@ function Cart() {
       setLoading(false);
     }
   };
+
+  const handleAddAddress = () => {
+    const token = Cookies.get("token");
+    if (token) {
+      navigate("/address");
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const fetchAddress = async () => {
+    setAddressLoading(true);
+    try {
+      const data = await getMyAddress();
+      setAddresses(data);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setAddresses([]);
+      } else {
+        const message = error?.response?.data?.detail || "Something went wrong";
+        toast.error(message);
+      }
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      fetchAddress();
+    }
+  }, []);
 
   return (
     <>
@@ -207,7 +259,9 @@ function Cart() {
                       <div className="w-24 h-24 flex items-center justify-center">
                         <img
                           src={item.imageUrl}
-                          onClick={()=> navigate(`/product-details/${item.productId}`)}
+                          onClick={() =>
+                            navigate(`/product-details/${item.productId}`)
+                          }
                           alt="img"
                           className="h-25 min-w-25 object-contain m-2 rounded-xl cursor-pointer"
                         />
@@ -269,50 +323,105 @@ function Cart() {
                 })}
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6 h-fit border border-1 border-gray-300">
-                <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+              <div className="flex flex-col gap-10">
+                <div className="bg-white rounded-xl shadow-md p-6 h-fit border border-1 flex flex-col border-gray-300">
+                  <Button
+                    style={{ fontSize: "18px" }}
+                    onClick={handleAddAddress}
+                    className="self-end"
+                  >
+                    Add Address
+                  </Button>
 
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400 text-sm">Subtotal</span>
-                    <span className="text-black-500">
-                      ₹ {cart.totalAmount}{" "}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400 text-sm">Shipping</span>
-                    <span className="text-black-500">Free</span>
-                  </div>
+                  {addressLoading && (
+                    <div className="flex justify-center my-4">
+                      <div className="loader"></div>
+                    </div>
+                  )}
+                  {addresses.length > 0 ? (
+                    <div className="space-y-4 mt-3">
+                      {addresses.map((address, index) => {
+                        return (
+                          <label
+                            key={index}
+                            className={`flex gap-3 p-4 border rounded-lg cursor-pointer transition ${selectedAddress === index ? "border-blue-500 bg-blue-50" : "border-gray-200"}`}
+                          >
+                            <Radio
+                              onChange={() => setSelectedAddress(index)}
+                              checked={selectedAddress === index}
+                            />
 
-                  <hr className="text-gray-300" />
+                            <div className="text-sm">
+                              <p className="font-semibold">
+                                {address.addressLine1}
+                              </p>
+                              <p>{address.addressLine2}</p>
+                              <p>{address.city}</p>
+                              <p>
+                                {address.state} - {address.pincode}
+                              </p>
+                              <p>{address.country}</p>
 
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-md">Total</span>
-                    <span className="font-bold text-md">
-                      ₹ {cart.totalAmount}
-                    </span>
-                  </div>
+                              {address.isDefault && (
+                                <span className="text-xs text-blue-700 font-semibold">
+                                  Default Address
+                                </span>
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ): (
+                    <p className="text-gray-500">No Address Added Yet!</p>
+                  )}
                 </div>
 
-                <button
-                  onClick={handleCheckout}
-                  className="w-full mt-4 bg-[var(--secondary-color)] text-white py-2 rounded-2xl hover:bg-orange-400 transition font-semibold cursor-pointer"
-                >
-                  Checkout
-                </button>
+                <div className="bg-white rounded-xl shadow-md p-6 h-fit border border-1 border-gray-300">
+                  <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
-                <button
-                  onClick={handleClearCart}
-                  className="w-full mt-3 text-gray-400 py-2 text-sm transition font-semibold cursor-pointer"
-                >
-                  {loading ? (
-                    <div className="flex justify-center">
-                      <div className="loader-btn text-center"></div>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm">Subtotal</span>
+                      <span className="text-black-500">
+                        ₹ {cart.totalAmount}{" "}
+                      </span>
                     </div>
-                  ) : (
-                    <span>Clear Cart</span>
-                  )}
-                </button>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm">Shipping</span>
+                      <span className="text-black-500">Free</span>
+                    </div>
+
+                    <hr className="text-gray-300" />
+
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-md">Total</span>
+                      <span className="font-bold text-md">
+                        ₹ {cart.totalAmount}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleCheckout}
+                    className="w-full mt-4 bg-[var(--secondary-color)] text-white py-2 rounded-2xl hover:bg-orange-400 transition font-semibold cursor-pointer"
+                  >
+                    Checkout
+                  </button>
+
+                  <button
+                    onClick={handleClearCart}
+                    className="w-full mt-3 text-gray-400 py-2 text-sm transition font-semibold cursor-pointer"
+                  >
+                    {loading ? (
+                      <div className="flex justify-center">
+                        <div className="loader-btn text-center"></div>
+                      </div>
+                    ) : (
+                      <span>Clear Cart</span>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

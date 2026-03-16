@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategory } from "../../redux/categorySlice";
 import { useNavigate } from "react-router-dom";
-
 import { AppDispatch, RootState } from "../../redux/store";
 
 const containerVariant = {

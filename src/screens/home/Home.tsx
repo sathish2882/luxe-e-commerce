@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchProducts } from "../../redux/productSlice";
 import { useSelector, useDispatch } from "react-redux";
@@ -7,8 +7,6 @@ import type { AppDispatch } from "../../redux/store";
 import { Helmet } from "react-helmet-async";
 import { HomeImg } from "../../utils/images";
 import Cookies from "js-cookie";
-import { CgShoppingCart } from "react-icons/cg";
-import { FaStar } from "react-icons/fa6";
 import { FaArrowRight } from "react-icons/fa";
 import {
   ShopNowBtn,
@@ -16,7 +14,6 @@ import {
   HomeTop,
   HomeImgInsideContainer,
   PopularGrid,
-  CardAddToCart,
   allProductsGrid,
 } from "./homeStyle";
 import { motion } from "framer-motion";
@@ -25,6 +22,7 @@ import { addToCartHandler } from "../../utils/cartHelper";
 import { Product } from "../../types/authTypes";
 import { getPopularProducts } from "../../services/authApi";
 import { toast } from "react-toastify";
+import ProductCard from "../../components/card/ProductCard";
 
 const containerVariant = {
   hidden: {},
@@ -35,14 +33,8 @@ const containerVariant = {
   },
 };
 
-const cardVariant = {
-  hidden: { opacity: 0, y: 40 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6 },
-  },
-};
+
+
 
 console.log(Cookies.get("token"));
 
@@ -51,7 +43,6 @@ function Home() {
   const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
   const [popularLoading, setPopularLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate()
 
   const { isLoading, products } = useSelector(
     (state: RootState) => state.products,
@@ -171,77 +162,19 @@ function Home() {
           </div>
         )}
 
-        <motion.div
+        {popularProducts.length > 0 && (
+          <motion.div
           variants={containerVariant}
           initial="hidden"
-          animate="show"
+          whileInView="show"
           viewport={{ once: true }}
           className={PopularGrid}
         >
-          {popularProducts.map((product, index) => {
-            const discountedPrice = Math.round(
-              product.price * (1 - product.discountPercent / 100),
-            );
-            const isInCart = cart.items.some(
-              (item) => item.productId === product.productId,
-            );
-
-            return (
-              <motion.div
-                key={`${product.productId}-${index}`}
-                onClick={()=> navigate(`/product-details/${product.productId}`)}
-                variants={cardVariant}
-                className="cursor-pointer flex flex-col gap-2 mb-2"
-              >
-                <div className="group relative overflow-hidden rounded-xl">
-                  <img
-                    src={product.imageUrl}
-                    className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-                  />
-
-                  {product.tag ? (
-                    <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                      {product.tag}
-                    </button>
-                  ) : (
-                    ""
-                  )}
-
-                  <button
-                    onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
-                    className={CardAddToCart}
-                    disabled={isInCart}
-                  >
-                    {loadingProductId === product.productId ? (
-                      <div className="loader-btn"></div>
-                    ) : (
-                      <div className="flex items-center">
-                        <CgShoppingCart className="text-lg mr-2" />
-                        {isInCart ? "Added" : "Add to Cart"}
-                      </div>
-                    )}
-                  </button>
-                </div>
-                <span className="block text-gray-500 text-sm">
-                  {product.categoryName}
-                </span>
-                <p className="text-sm text-[var(--primary-color)] font-bold">
-                  {product.productName}
-                </p>
-                <p className="flex items-center text-gray-500 text-sm">
-                  <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-                  {product.rating} ({product.totalReviews})
-                </p>
-                <p className="text-md text-[var(--primary-color)] font-medium">
-                  ₹ {discountedPrice}
-                  <span className="text-md text-gray-500 ml-2 line-through">
-                    ₹ {product.price}
-                  </span>
-                </p>
-              </motion.div>
-            );
-          })}
+          {popularProducts.map((product, index) =>(
+            <ProductCard key={`${product.productId}-${index}`} product={product} loadingProductId={loadingProductId} handleAddToCart={handleAddToCart}  />)
+          )}
         </motion.div>
+        )}
       </section>
       <section className="bg-[var(--secondary-color)] text-white text-center py-18">
         <h3 className="text-4xl font-bold mb-3">
@@ -263,75 +196,16 @@ function Home() {
 
         {products.length > 0 && (
           <motion.div
-            variants={containerVariant}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className={allProductsGrid}
-          >
-            {slicedProducts.map((product, index) => {
-              const discountedPrice = Math.round(
-                product.price * (1 - product.discountPercent / 100),
-              );
-              const isInCart = cart.items.some(
-                (item) => item.productId === product.productId,
-              );
-
-              return (
-                <motion.div
-                  variants={cardVariant}
-                  className="cursor-pointer flex flex-col gap-2 mb-2"
-                  onClick={()=> navigate(`/product-details/${product.productId}`)}
-                  key={`${product.productId}-${index}`}
-                >
-                  <div className="group relative overflow-hidden rounded-xl">
-                    <img
-                      src={product.imageUrl}
-                      alt={product.productName}
-                      className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
-                    />
-                    {product.tag ? (
-                      <button className="absolute left-3 top-3 bg-[var(--secondary-color)] text-white px-2 rounded-xl">
-                        {product.tag}
-                      </button>
-                    ) : (
-                      ""
-                    )}
-                    <button
-                      onClick={(e) => {e.stopPropagation(); handleAddToCart(product)}}
-                      className={CardAddToCart}
-                      disabled={isInCart}
-                    >
-                      {loadingProductId === product.productId ? (
-                        <div className="loader-btn"></div>
-                      ) : (
-                        <div className="flex items-center">
-                          <CgShoppingCart className="text-lg mr-2" />
-                          {isInCart ? "Added" : "Add to Cart"}
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                  <span className="block text-gray-500 text-sm">
-                    {product.categoryName}
-                  </span>
-                  <p className="text-sm text-[var(--primary-color)] font-bold">
-                    {product.productName}
-                  </p>
-                  <p className="flex items-center text-gray-500 text-sm">
-                    <FaStar className="text-[var(--secondary-color)] text-md mr-1" />{" "}
-                    {product.rating} ({product.totalReviews})
-                  </p>
-                  <p className="text-md text-[var(--primary-color)] font-medium">
-                    ₹ {discountedPrice}
-                    <span className="text-md text-gray-500 ml-2 line-through">
-                      ₹ {product.price}
-                    </span>
-                  </p>
-                </motion.div>
-              );
-            })}
-          </motion.div>
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className={allProductsGrid}
+        >
+          {slicedProducts.map((product, index) =>(
+            <ProductCard key={`${product.productId}-${index}`} product={product} loadingProductId={loadingProductId} handleAddToCart={handleAddToCart}  />)
+          )}
+        </motion.div>
         )}
       </section>
     </>
