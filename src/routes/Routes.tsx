@@ -15,6 +15,7 @@ import NotFound from "../screens/NotFound";
 import Contact from "../screens/Contact";
 import SearchResults from "../screens/SearchResults";
 import Address from "../screens/Address";
+import OrderDetails from "../screens/OrderDetails";
 
 export const router = createHashRouter([
   {
@@ -56,6 +57,10 @@ export const router = createHashRouter([
        {
         path: "/orders",
         element: <Orders />,
+      },
+      {
+        path: "/orders/:orderId",
+        element: <OrderDetails />,
       },
       {
         path: "/search",

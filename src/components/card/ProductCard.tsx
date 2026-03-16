@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Product } from "../../types/authTypes";
-import { CardAddToCart } from "../../screens/home/homeStyle";
+import { CardAddToCart } from "../../screens/home/HomeStyle";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaStar } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";

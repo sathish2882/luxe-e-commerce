@@ -35,7 +35,7 @@ function Orders() {
   }, []);
 
   return (
-    <div className="my-15 px-8 sm:px-10 xl:px-20 flex flex-col gap-5">
+    <section className="my-15 px-8 sm:px-10 xl:px-20 flex flex-col gap-5 max-w-5xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">My Orders</h1>
 
       {ordersLoading && (
@@ -46,7 +46,9 @@ function Orders() {
 
       {orders.length > 0 && !ordersLoading ? (
         orders.map((order) => (
-          <div key={order.orderId} className="border rounded-xl p-4 shadow-sm bg-white w-full flex flex-col">
+          <Link key={order.orderId} to={`/orders/${order.orderId}`} >
+          
+          <div className="border border-gray-300 rounded-xl p-4 shadow-lg bg-white w-full flex flex-col">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-bold text-orange-600 text-lg">
                 Order #{order.orderId}
@@ -70,6 +72,7 @@ function Orders() {
               </span>
             </div>
           </div>
+          </Link>
         ))
       ) : (
         <section className="flex flex-col items-center justify-center text-center my-15 px-8 sm:px-10 xl:px-20">
@@ -89,7 +92,7 @@ function Orders() {
           </Link>
         </section>
       )}
-    </div>
+    </section>
   );
 }
 

@@ -15,7 +15,7 @@ function Contact() {
           content="Get in touch with Luxe for product inquiries, support, or feedback. Contact our team for assistance with your orders and shopping experience."
         />
       </Helmet>
-      <section className="bg-gray-50 min-h-screen py-16 px-8 sm:px-10 xl:px-20">
+      <section className="bg-gray-50 min-h-screen py-15 px-8 sm:px-10 xl:px-20">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
           <div>
             <Link to="/">

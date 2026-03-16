@@ -15,7 +15,7 @@ import {
   HomeImgInsideContainer,
   PopularGrid,
   allProductsGrid,
-} from "./homeStyle";
+} from "./HomeStyle";
 import { motion } from "framer-motion";
 
 import { addToCartHandler } from "../../utils/cartHelper";

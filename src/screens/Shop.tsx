@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import { fetchProducts, fetchProductsByCategory } from "../redux/productSlice";
-import { allProductsGrid } from "./home/homeStyle";
+import { allProductsGrid } from "./home/HomeStyle";
 import ProductCard from "../components/card/ProductCard";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";

@@ -5,7 +5,7 @@ import { addToCartHandler } from "../utils/cartHelper";
 import { RootState } from "../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/card/ProductCard";
-import { allProductsGrid } from "./home/homeStyle";
+import { allProductsGrid } from "./home/HomeStyle";
 import { motion } from "framer-motion";
 import { getProductDetails, getSearchProducts } from "../services/authApi";
 import { toast } from "react-toastify";
