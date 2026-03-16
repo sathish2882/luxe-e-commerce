@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Button } from "antd";
 import { FiMinus } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
-import { AddToCart } from "./ProductDetailsStyle";
+import { AddToCart } from "./productDetailsStyle";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getProductDetails } from "../../services/authApi";

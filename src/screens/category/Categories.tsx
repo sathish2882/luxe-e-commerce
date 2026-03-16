@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { CategoryGrid, CategoryImg } from "./CategoriesStyle";
+import { CategoryGrid, CategoryImg } from "./categoriesStyle";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategory } from "../../redux/categorySlice";
