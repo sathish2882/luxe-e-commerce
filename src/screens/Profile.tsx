@@ -39,7 +39,6 @@ function Profile() {
 
   };
 
-  //login
 
   const handleLogout = () => {
     Cookies.remove("token");
