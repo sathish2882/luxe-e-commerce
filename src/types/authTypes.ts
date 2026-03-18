@@ -19,7 +19,7 @@ export interface Product {
 export interface Category {
   name: string;
   parentId: number;
-  status: boolean;
+  status: string;
   updatedAt: string;
   categoriesId: number;
   imageUrl: string;
@@ -71,3 +71,5 @@ export interface OrderItems {
   quantity: number
   totalPrice: number;
 }
+
+

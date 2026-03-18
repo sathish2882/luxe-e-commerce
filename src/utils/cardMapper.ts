@@ -91,7 +91,7 @@ export const formatCategory = (data: any[]) => {
   return data.map((item) => ({
     name: item.name,
     parentId: item.parent_id,
-    status: item.active,
+    status: item.status,
     updatedAt: item.updated_at,
     categoriesId: item.categories_id,
     imageUrl: item.image_url,

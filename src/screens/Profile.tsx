@@ -36,12 +36,11 @@ function Profile() {
 
   const handleLogin = () => {
     navigate("/login");
-
   };
-
 
   const handleLogout = () => {
     Cookies.remove("token");
+    Cookies.remove("userType");
     setUser(null);
     navigate("/", { replace: true });
   };
@@ -63,9 +62,6 @@ function Profile() {
           Orders
         </button>
       </Link>
-      <button className="text-left hover:text-black cursor-pointer">
-        Wishlist
-      </button>
 
       {!user ? (
         <Button

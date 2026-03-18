@@ -53,10 +53,10 @@ function ProductCard({
       variants={cardVariant}
       className="cursor-pointer flex flex-col gap-2 mb-2"
     >
-      <div className="group relative overflow-hidden rounded-xl">
+      <div className="group relative overflow-hidden rounded-xl aspect-square">
         <img
           src={imageUrl}
-          className="w-full transition-transform duration-300 group-hover:scale-105 rounded-md"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 rounded-md"
         />
 
         {tag ? (
