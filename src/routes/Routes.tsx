@@ -8,6 +8,7 @@ import Login from "../screens/auth/Login";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import Signup from "../screens/auth/Signup";
 import ProtectedRoute from "./ProtectedRoute";
+import PrivateRoute from "./PrivateRoute";
 import ProductDetails from "../screens/productDetails/ProductDetails";
 import Cart from "../screens/Cart";
 import Orders from "../screens/Orders";
@@ -17,7 +18,34 @@ import SearchResults from "../screens/SearchResults";
 import Address from "../screens/Address";
 import OrderDetails from "../screens/OrderDetails";
 
+import AdminLayout from "../layout/AdminLayout";
+import AdminDashboard from "../screens/admin/AdminDashboard";
+import AdminProducts from "../screens/admin/AdminProducts";
+import AdminCategory from "../screens/admin/AdminCategory";
+
 export const router = createHashRouter([
+  {
+    path: "/admin-layout",
+    element: (
+      <PrivateRoute>
+        <AdminLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <AdminDashboard />,
+      },
+      {
+        path: "admin-products",
+        element: <AdminProducts />,
+      },
+      {
+        path: "admin-category",
+        element: <AdminCategory />,
+      },
+    ],
+  },
   {
     path: "/",
     element: (
@@ -54,7 +82,7 @@ export const router = createHashRouter([
         path: "/cart",
         element: <Cart />,
       },
-       {
+      {
         path: "/orders",
         element: <Orders />,
       },

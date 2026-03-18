@@ -67,7 +67,7 @@ export const getOrdersApi = async () => {
   return formatOrders(response.data);
 };
 
-export const getOrdersItemsApi = async (orderId:number) => {
+export const getOrdersItemsApi = async (orderId: number) => {
   const response = await API.get(`/order-items/${orderId}`);
   return formatOrderItems(response.data);
 };
@@ -87,4 +87,52 @@ export const getProductDetails = async (productId: number) => {
 
 export const checkoutApi = (shipping_address: number) => {
   return API.post("/checkout", { shipping_address });
+};
+
+export const updateProduct = (data: FormData, productId: number) => {
+  return API.put(`/products/update/${productId}`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const addProduct = (data: FormData) => {
+  return API.post("/products/create_product", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const deleteProduct = (productId: number) => {
+  return API.delete("/products/delete", {
+    params: {
+      product_id: productId,
+    },
+  });
+};
+
+export const updateCategory = (data: FormData, categoriesId: number) => {
+  return API.put(`/category/update/${categoriesId}`, data,  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const addCategory = (data: FormData) => {
+  return API.post("/category/create", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const deleteCategory = (categoriesId: number) => {
+  return API.delete("/category/delete", {
+    params: {
+      categories_id: categoriesId,
+    },
+  });
 };

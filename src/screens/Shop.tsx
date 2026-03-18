@@ -1,4 +1,4 @@
-import { Button, Skeleton } from "antd";
+import { Button, Pagination, Skeleton } from "antd";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
@@ -34,7 +34,7 @@ function Shop() {
 
   const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
 
-  const { isLoading, products } = useSelector(
+  const { isLoading, products,totalCount,currentPage } = useSelector(
     (state: RootState) => state.products,
   );
 
@@ -45,7 +45,7 @@ function Shop() {
     if (categoriesId) {
       dispatch(fetchProductsByCategory(Number(categoriesId)));
     } else {
-      dispatch(fetchProducts());
+      dispatch(fetchProducts(1));
     }
   }, [dispatch, categoriesId]);
 
@@ -136,6 +136,22 @@ function Shop() {
             ))}
           </motion.div>
         )}
+        
+
+        {!categoriesId && <div className="flex justify-center mt-6">
+            <Pagination
+
+               total={totalCount}
+               current={currentPage}
+               pageSize={10}
+               onChange={(page)=>{
+                 dispatch(fetchProducts(page))
+                 window.scrollTo(0,0)
+               }}
+             />
+        </div>}
+        
+
       </section>
     </>
   );

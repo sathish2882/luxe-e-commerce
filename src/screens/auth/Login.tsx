@@ -8,7 +8,7 @@ import {
   verifyOtpFor2FA,
   resendOtpApi,
 } from "../../services/authApi";
-import { setToken } from "../../utils/authCookies";
+import { setToken, setUser } from "../../utils/authCookies";
 import { toast } from "react-toastify";
 import FormInput from "../../components/formInput/FormInput";
 import { syncCartAfterLogin } from "../../utils/cartHelper";
@@ -25,14 +25,14 @@ interface OtpValues {
 }
 
 function Login() {
-  const cart = useSelector((state: RootState) => state.cart)
+  const cart = useSelector((state: RootState) => state.cart);
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1);
   const [otpKey, setOtpKey] = useState<string>("");
-  const [timer, setTimer] = useState<number>(60);
+  const [timer, setTimer] = useState<number>(0);
   const [canResend, setCanResend] = useState<boolean>(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
@@ -75,25 +75,30 @@ function Login() {
       formData.append("password", values.password);
 
       const response = await loginApi(formData);
-      console.log(response.data)
+      console.log(response.data);
 
       if (response.data.token) {
         setToken(response.data.token);
-        if (cart.items.length !== 0){
-          await syncCartAfterLogin(dispatch)
+        setUser(response.data.user_type)
+        if (cart.items.length !== 0) {
+          await syncCartAfterLogin(dispatch);
+        }
+        if (response.data.user_type === "admin") {
+          navigate("/admin-layout");
+        } else if (response.data.user_type === "user") {
+          navigate("/", { replace: true });
         }
         toast.success("Login successful");
-        navigate("/", { replace: true });
-        
       } else if (response.data.otp_key) {
         setOtpKey(response.data.otp_key);
+        setTimer(response.data.timer)
         toast.success("OTP sent to your email");
         setStep(2);
       }
     } catch (error: any) {
       const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
-      console.log(message)
+      console.log(message);
     } finally {
       setLoading(false);
     }
@@ -106,12 +111,13 @@ function Login() {
       const formData = new FormData();
       formData.append("otp", values.otp);
       formData.append("otp_key", otpKey);
-      console.log("api call")
+      console.log("api call");
       const response = await verifyOtpFor2FA(formData);
       console.log(response);
       setToken(response.data.token);
+      setUser(response.data.user_type)
 
-      await syncCartAfterLogin(dispatch)
+      await syncCartAfterLogin(dispatch);
       navigate("/", { replace: true });
       toast.success("OTP Verified Successfully");
     } catch (error: any) {
@@ -128,9 +134,9 @@ function Login() {
 
       const formData = new FormData();
       formData.append("reset_key", otpKey);
-      await resendOtpApi(formData);
+      const response = await resendOtpApi(formData);
       setCanResend(false);
-      setTimer(60);
+      setTimer(response.data.timer)
       toast.success("OTP successfully resent your email!");
       setStep(2);
     } catch (error: any) {
@@ -146,7 +152,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 login">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4">
       <div
         className="w-full max-w-md bg-white p-8 sm:p-10 rounded-lg 
                 shadow-[0_0_50px_rgba(168,85,247,0.5)]"

@@ -33,8 +33,16 @@ function Cart() {
   const [addressLoading, setAddressLoading] = useState<boolean>(false);
   const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
   const [addresses, setAddresses] = useState<MyAddress[]>([]);
+  const [showAll, setShowAll] = useState<boolean>(false);
 
-  console.log(addresses);
+  let sortedAddresses;
+
+  if (addresses) {
+    sortedAddresses = addresses.sort(
+      (a, b) => Number(b.isDefault) - Number(a.isDefault),
+    );
+  }
+
   const cart = useSelector((state: RootState) => state.cart);
 
   const handleCheckout = async () => {
@@ -338,9 +346,12 @@ function Cart() {
                       <div className="loader"></div>
                     </div>
                   )}
-                  {addresses.length > 0 ? (
+                  {sortedAddresses && sortedAddresses.length > 0 ? (
                     <div className="space-y-4 mt-3">
-                      {addresses.map((address, index) => {
+                      {(showAll
+                        ? sortedAddresses
+                        : sortedAddresses.filter((each) => each.isDefault)
+                      ).map((address, index) => {
                         return (
                           <label
                             key={index}
@@ -371,8 +382,15 @@ function Cart() {
                           </label>
                         );
                       })}
+
+                      <Button
+                        onClick={() => setShowAll(!showAll)}
+                        type="primary"
+                      >
+                        {showAll ? "Show Default" : "View All Addresses"}
+                      </Button>
                     </div>
-                  ): (
+                  ) : (
                     <p className="text-gray-500">No Address Added Yet!</p>
                   )}
                 </div>
