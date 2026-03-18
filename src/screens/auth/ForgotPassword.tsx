@@ -27,7 +27,7 @@ interface ResetPasswordValues {
 
 function ForgotPassword() {
   const [otpKey, setOtpKey] = useState<string>("");
-  const [timer, setTimer] = useState<number>(60);
+  const [timer, setTimer] = useState<number>(600);
   const [canResend, setCanResend] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -80,7 +80,8 @@ function ForgotPassword() {
       const response = await forgotPasswordApi(formData);
       setOtpKey(response.data.otp_key);
       setCanResend(false);
-      setTimer(60);
+      
+      setTimer(600);
       toast.success("OTP successfully sent your email!");
 
       setStep(2);
@@ -100,7 +101,7 @@ function ForgotPassword() {
       formData.append("reset_key", otpKey);
       await resendOtpApi(formData);
       setCanResend(false);
-      setTimer(60);
+      setTimer(600);
       toast.success("OTP successfully resent your email!");
 
       setStep(2);

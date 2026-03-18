@@ -53,7 +53,7 @@ function Home() {
   const slicedProducts = products.slice(0, 8);
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProducts(1));
   }, [dispatch]);
 
   const handleAddToCart = async (product: any) => {
