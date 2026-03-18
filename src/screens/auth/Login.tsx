@@ -91,7 +91,7 @@ function Login() {
         toast.success("Login successful");
       } else if (response.data.otp_key) {
         setOtpKey(response.data.otp_key);
-        setTimer(response.data.timer)
+        setTimer(response?.data?.timer);
         toast.success("OTP sent to your email");
         setStep(2);
       }
@@ -136,7 +136,7 @@ function Login() {
       formData.append("reset_key", otpKey);
       const response = await resendOtpApi(formData);
       setCanResend(false);
-      setTimer(response.data.timer)
+      setTimer(response?.data?.timer);
       toast.success("OTP successfully resent your email!");
       setStep(2);
     } catch (error: any) {
@@ -217,16 +217,17 @@ function Login() {
             validationSchema={otpSchema}
             onSubmit={handleOtpSubmit}
           >
-            {() => (
+            {({values}) => (
               <Form className="space-y-4">
                 <FormInput label="Enter OTP" name="otp" type="text" />
 
+                
                 <Button
                   type="primary"
                   style={{ fontFamily: "var(--primary-font)" }}
                   loading={loading}
+                  disabled={values.otp !== ""}
                   htmlType="submit"
-                  disabled={canResend}
                   block
                 >
                   Verify OTP
@@ -235,7 +236,7 @@ function Login() {
                 <Button
                   type="primary"
                   style={{ fontFamily: "var(--primary-font)" }}
-                  disabled={!canResend}
+                  disabled={canResend}
                   loading={loading}
                   onClick={handleResendOtp}
                   block
