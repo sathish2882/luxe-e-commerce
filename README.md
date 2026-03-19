@@ -14,6 +14,8 @@ The application provides a responsive shopping experience with authentication, p
 * API integration for authentication and product data
 * Toast notifications for user feedback
 * Unit testing with Jest and React Testing Library
+* Products filtering based on category
+* Admin dashboard
 
 ## Tech Stack
 
@@ -100,6 +102,7 @@ The login system uses:
 * API-based authentication
 * Token storage in cookies
 * Protected routes for authenticated users
+* Role based access
 
 ## Responsive Design
 
@@ -108,14 +111,6 @@ The application is fully responsive and optimized for:
 * Mobile devices
 * Tablets
 * Desktop screens
-
-## Future Improvements
-
-* Product filtering and sorting
-* Wishlist functionality
-* Payment gateway integration
-* Order history
-* Admin dashboard
 
 ---
 
