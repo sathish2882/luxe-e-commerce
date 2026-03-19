@@ -44,6 +44,10 @@
 
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --font-body: "DM Sans", sans-serif;
   --font-heading: "Playfair Display", serif;

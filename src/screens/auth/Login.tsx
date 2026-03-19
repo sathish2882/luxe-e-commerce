@@ -226,7 +226,7 @@ function Login() {
                   type="primary"
                   style={{ fontFamily: "var(--primary-font)" }}
                   loading={loading}
-                  disabled={values.otp !== ""}
+                  disabled={values.otp === ""}
                   htmlType="submit"
                   block
                 >
