@@ -49,13 +49,13 @@ function OrderDetails() {
               key={item.orderItemsId}
               className="flex flex-col sm:flex-row gap-4 border-b pb-5"
             >
-               <Link to={`/product-details/${item.productId}`}>
-              <img
-                src={item.imageUrl}
-                alt={item.productName}
-                className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded-lg"
-              />
-              </Link>  
+              <Link to={`/product-details/${item.productId}`}>
+                <img
+                  src={item.imageUrl}
+                  alt={item.productName}
+                  className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded-lg"
+                />
+              </Link>
 
               <div className="flex-1">
                 <h3 className="font-semibold text-lg">{item.productName}</h3>
