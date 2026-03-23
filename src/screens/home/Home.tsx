@@ -1,4 +1,4 @@
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchProducts } from "../../redux/productSlice";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,7 +6,6 @@ import type { RootState } from "../../redux/store";
 import type { AppDispatch } from "../../redux/store";
 import { Helmet } from "react-helmet-async";
 import { HomeImg } from "../../utils/images";
-import Cookies from "js-cookie";
 import { FaArrowRight } from "react-icons/fa";
 import {
   ShopNowBtn,
@@ -32,11 +31,6 @@ const containerVariant = {
     },
   },
 };
-
-
-
-
-console.log(Cookies.get("token"));
 
 function Home() {
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
@@ -69,7 +63,6 @@ function Home() {
     setPopularLoading(true);
     try {
       const data = await getPopularProducts();
-      console.log(data);
 
       setPopularProducts(data);
     } catch (error: any) {
@@ -158,22 +151,27 @@ function Home() {
 
         {popularLoading && (
           <div className="flex justify-center my-4">
-            <div className="loader"></div>
+            <div data-testid="loader" className="loader"></div>
           </div>
         )}
 
         {popularProducts.length > 0 && (
           <motion.div
-          variants={containerVariant}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className={PopularGrid}
-        >
-          {popularProducts.map((product, index) =>(
-            <ProductCard key={`${product.productId}-${index}`} product={product} loadingProductId={loadingProductId} handleAddToCart={handleAddToCart}  />)
-          )}
-        </motion.div>
+            variants={containerVariant}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className={PopularGrid}
+          >
+            {popularProducts.map((product, index) => (
+              <ProductCard
+                key={`${product.productId}-${index}`}
+                product={product}
+                loadingProductId={loadingProductId}
+                handleAddToCart={handleAddToCart}
+              />
+            ))}
+          </motion.div>
         )}
       </section>
       <section className="bg-[var(--secondary-color)] text-white text-center py-18">
@@ -196,16 +194,21 @@ function Home() {
 
         {products.length > 0 && (
           <motion.div
-          variants={containerVariant}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className={allProductsGrid}
-        >
-          {slicedProducts.map((product, index) =>(
-            <ProductCard key={`${product.productId}-${index}`} product={product} loadingProductId={loadingProductId} handleAddToCart={handleAddToCart}  />)
-          )}
-        </motion.div>
+            variants={containerVariant}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className={allProductsGrid}
+          >
+            {slicedProducts.map((product, index) => (
+              <ProductCard
+                key={`${product.productId}-${index}`}
+                product={product}
+                loadingProductId={loadingProductId}
+                handleAddToCart={handleAddToCart}
+              />
+            ))}
+          </motion.div>
         )}
       </section>
     </>

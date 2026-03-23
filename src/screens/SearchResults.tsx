@@ -25,7 +25,7 @@ function SearchResults() {
   const [params] = useSearchParams();
   const query = params.get("q");
   const [products, setProducts] = useState<Product[]>([]);
-  const [error,setError] = useState<string>("")
+  const [error, setError] = useState<string>("");
   const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -33,8 +33,8 @@ function SearchResults() {
 
   const fetchSearchProductIds = async () => {
     setLoading(true);
-    setError("")
-    setProducts([])
+    setError("");
+    setProducts([]);
     try {
       if (!query) return;
 
@@ -46,14 +46,10 @@ function SearchResults() {
       );
 
       setProducts(fullProducts);
-
-      console.log(fullProducts);
-
-      console.log("searchProducts", data);
     } catch (error: any) {
       const message = error?.response?.data?.detail || "Something went wrong";
-      toast.error(message)
-      setError(message)
+      toast.error(message);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -74,8 +70,8 @@ function SearchResults() {
     }
   };
 
-  console.log(error)
-  console.log(products)
+  console.log(error);
+  console.log(products);
 
   return (
     <section className="px-8 sm:px-10 xl:px-20 py-15">
@@ -110,7 +106,7 @@ function SearchResults() {
             />
           ))}
         </motion.div>
-      )  }
+      )}
     </section>
   );
 }

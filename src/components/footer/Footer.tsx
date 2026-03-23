@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { FooterTop, FooterLink } from "./FooterStyle";
 
 function FooterSection() {
+  
   return (
     <footer>
       <div className={FooterTop}>
