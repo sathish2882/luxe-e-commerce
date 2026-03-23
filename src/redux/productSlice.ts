@@ -22,7 +22,6 @@ export const fetchProducts = createAsyncThunk<ProductResponse,number>(
   async (page= 1, thunkAPI) => {
     try {
       const response = await API.get(`/products/all_products?page=${page}`);
-      console.log(response);
       return {
         data: formatProducts(response.data.data),
         current_page: response.data.current_page,

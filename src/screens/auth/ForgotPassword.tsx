@@ -68,7 +68,7 @@ function ForgotPassword() {
       .required("Password required"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password")], "Passwords must match")
-      .required("Confirm your password"),
+      .required("Confirm password required"),
   });
 
   const handleEmailSubmit = async (values: forgotPasswordValues) => {
@@ -245,7 +245,7 @@ function ForgotPassword() {
 
                 <FormInput
                   label="Confirm Password"
-                  name="password"
+                  name="confirmPassword"
                   type="password"
                 />
 

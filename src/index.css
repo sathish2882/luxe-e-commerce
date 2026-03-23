@@ -159,3 +159,9 @@ footer {
   font-family: var(--font-body) !important;
   color: var(--primary-color) !important;
 }
+
+.ant-layout-sider-children{
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}

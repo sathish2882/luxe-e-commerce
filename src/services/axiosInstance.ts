@@ -9,39 +9,35 @@ const API = axios.create({
 });
 
 API.interceptors.request.use(
-    (config) =>{
-        const token = Cookies.get("token")
-        if(token){
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-    },
+  (config) => {
+    const token = Cookies.get("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
 
-
-     (error) => Promise.reject(error) 
-)
+  (error) => Promise.reject(error),
+);
 
 API.interceptors.response.use(
-    (response) => response,
-    (error) =>{
-        if (error.response?.status === 401 && error.config?.url !== "/login"){
-            Cookies.remove("token")
-            window.location.href = "/login"
-            return Promise.reject(error)
-        } 
-        if (error.response?.status === 500){
-            console.log("Server error")
-            return Promise.reject(error)
-        }
-
-        if (!error.response){
-            console.log("Network error")
-            return Promise.reject(new Error("Network error. Please try again"))
-        }
-
-        return Promise.reject(error)
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && error.config?.url !== "/login") {
+      Cookies.remove("token");
+      window.location.href = "/login";
+      return Promise.reject(error);
     }
-)
+    if (error.response?.status === 500) {
+      return Promise.reject(error);
+    }
 
+    if (!error.response) {
+      return Promise.reject(new Error("Network error. Please try again"));
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export default API;

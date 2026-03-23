@@ -42,8 +42,7 @@ function Signup() {
       formData.append("email", values.email);
       formData.append("password", values.password);
 
-      const response = await signupApi(formData);
-      console.log(response);
+      await signupApi(formData);
 
       toast.success("Signup successful");
 
@@ -51,7 +50,6 @@ function Signup() {
     } catch (error: any) {
       const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
-      console.log(error?.response?.data?.detail);
     } finally {
       setLoading(false);
     }

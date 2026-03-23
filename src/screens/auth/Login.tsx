@@ -40,10 +40,10 @@ function Login() {
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("Invalid email")
-      .required("Please input your email!"),
+      .required("Please enter your email!"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
-      .required("Please input your password!"),
+      .required("Please enter your password!"),
   });
 
   const otpSchema = Yup.object({
@@ -75,7 +75,6 @@ function Login() {
       formData.append("password", values.password);
 
       const response = await loginApi(formData);
-      console.log(response.data);
 
       if (response.data.token) {
         setToken(response.data.token);
@@ -98,7 +97,6 @@ function Login() {
     } catch (error: any) {
       const message = error?.response?.data?.detail || "Something went wrong";
       toast.error(message);
-      console.log(message);
     } finally {
       setLoading(false);
     }
@@ -111,9 +109,7 @@ function Login() {
       const formData = new FormData();
       formData.append("otp", values.otp);
       formData.append("otp_key", otpKey);
-      console.log("api call");
       const response = await verifyOtpFor2FA(formData);
-      console.log(response);
       setToken(response.data.token);
       setUser(response.data.user_type)
 

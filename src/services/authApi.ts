@@ -66,6 +66,10 @@ export const getOrdersApi = async () => {
   const response = await API.get("/orders/my");
   return formatOrders(response.data);
 };
+export const getAllOrdersApi = async () => {
+  const response = await API.get("/order-items/all");
+  return response.data
+};
 
 export const getOrdersItemsApi = async (orderId: number) => {
   const response = await API.get(`/order-items/${orderId}`);
