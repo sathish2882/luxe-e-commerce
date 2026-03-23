@@ -151,7 +151,7 @@ function Home() {
 
         {popularLoading && (
           <div className="flex justify-center my-4">
-            <div data-testid="loader" className="loader"></div>
+            <div data-testid="loader-popular" className="loader"></div>
           </div>
         )}
 
@@ -188,7 +188,7 @@ function Home() {
 
         {isLoading && (
           <div className="flex justify-center my-4">
-            <div className="loader"></div>
+            <div data-testid="loader-all" className="loader"></div>
           </div>
         )}
 

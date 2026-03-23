@@ -3,8 +3,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { store } from "../redux/store";
 import { Provider } from "react-redux";
+import { toast } from "react-toastify";
 
 const mockDispatch = jest.fn();
+
 
 jest.mock("react-redux", () => ({
   ...jest.requireActual("react-redux"),
@@ -14,6 +16,10 @@ jest.mock("react-redux", () => ({
       products: {
         products: [{ productId: 1, productName: "Phone" }],
         isLoading: false,
+        error: null,
+      },
+      cart: {
+        items: [],
       },
     }),
 }));
@@ -33,6 +39,12 @@ jest.mock("../redux/productSlice", () => ({
   fetchProducts: jest.fn(() => () => Promise.resolve()),
 }));
 
+jest.mock("react-toastify", () => ({
+  toast: {
+    error: jest.fn(),
+  },
+}));
+
 import { getPopularProducts } from "../services/authApi";
 import { fetchProducts } from "../redux/productSlice";
 
@@ -46,26 +58,62 @@ const renderHome = () => {
   );
 };
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 test("Home renders correctly", () => {
   renderHome();
 
   expect(screen.getByText(/Popular Right Now/i)).toBeInTheDocument();
 });
 
-test("Popular products api renders correctly", () => {
+test("Popular products api renders correctly", async () => {
   (getPopularProducts as jest.Mock).mockResolvedValue([]);
 
   renderHome();
-  expect(getPopularProducts).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(getPopularProducts).toHaveBeenCalled();
+  });
 });
-
 
 test("Popular products api calling correctly", async () => {
   (getPopularProducts as jest.Mock).mockResolvedValue([
     { productId: 1, productName: "Mobile" },
   ]);
 
-  expect(getPopularProducts).toHaveBeenCalled();
+  renderHome();
+
+  await waitFor(() => {
+    expect(getPopularProducts).toHaveBeenCalled();
+  });
+
+  const items = await screen.findAllByText("Product");
+  expect(items.length).toBeGreaterThan(0);
+});
+
+test("Popular products api fails", async () => {
+  (getPopularProducts as jest.Mock).mockRejectedValue({
+    response: {
+      data: { detail: "Failed" },
+    },
+  });
+
+  renderHome();
+
+  await waitFor(() => {
+    expect(toast.error).toHaveBeenCalledWith("Failed");
+  });
+});
+
+test("Popular products loading when api calling", async () => {
+  (getPopularProducts as jest.Mock).mockImplementation(
+    () => new Promise(() => {}),
+  );
+
+  renderHome();
+
+  expect(screen.getByTestId("loader-popular")).toBeInTheDocument();
 });
 
 test("Home redux api renders successfully", async () => {
@@ -80,38 +128,61 @@ test("Home redux api renders successfully", async () => {
 });
 
 test("Shows loader when data is fetching", () => {
-  jest.mock("react-redux", () => ({
-    ...jest.requireActual("react-redux"),
-    useDispatch: () => mockDispatch,
-    useSelector: (selector: any) =>
+  const useSelectorMock = jest
+    .spyOn(require("react-redux"), "useSelector")
+
+    .mockImplementation((selector: any) =>
       selector({
         products: {
           products: [{ productId: 1, productName: "Phone" }],
           isLoading: true,
         },
       }),
-  }));
+    );
 
   renderHome();
 
-  expect(screen.queryByTestId(/loader/i)).toBeInTheDocument();
+  expect(screen.queryByTestId("loader-all")).toBeInTheDocument();
+  useSelectorMock.mockRestore();
 });
 
-test("Showing error when api call is failed", () => {
-  jest.mock("react-redux", () => ({
-    ...jest.requireActual("react-redux"),
-    useDispatch: () => mockDispatch,
-    useSelector: (selector: any) =>
+test("Redux products slice fails", async () => {
+  const useSelectorMock = jest
+    .spyOn(require("react-redux"), "useSelector")
+
+    .mockImplementation((selector: any) =>
       selector({
         products: {
           products: [{ productId: 1, productName: "Phone" }],
-          isLoading: true,
-          errors: null,
+          isLoading: false,
+          error: "Failed to fetch products",
         },
       }),
-  }));
+    );
 
   renderHome();
 
-  expect(screen.queryByTestId(/loader/i)).toBeInTheDocument();
+  waitFor(() => {
+    expect(toast.error).toHaveBeenCalledWith("Failed to fetch products");
+  });
+
+  useSelectorMock.mockRestore();
 });
+
+test("Displays correct heading text", () => {
+  renderHome();
+
+  expect(screen.getByText(/Popular Right Now/i)).toBeInTheDocument();
+  expect(screen.getByText(/NEW COLLECTION 2026/i)).toBeInTheDocument();
+});
+
+test("Shows Shop Now and Explore buttons", () => {
+  renderHome();
+
+  expect(screen.getByRole("button", { name: /shop now/i })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /explore/i })).toBeInTheDocument();
+});
+
+
+
+
