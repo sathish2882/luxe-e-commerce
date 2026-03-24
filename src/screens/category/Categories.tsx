@@ -55,7 +55,7 @@ function Categories() {
 
         {categoryLoading && (
           <div className="flex justify-center my-4">
-            <div className="loader"></div>
+            <div data-testid="category-section-loader" className="loader"></div>
           </div>
         )}
 
@@ -76,6 +76,7 @@ function Categories() {
                 <img
                   src={category.imageUrl}
                   alt={category.name}
+                  aria-label="category img"
                   className={CategoryImg}
                   onClick={()=>{navigate(`/shop/${category.categoriesId}`)}}
                 />

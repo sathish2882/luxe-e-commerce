@@ -57,3 +57,24 @@ test("Categories redux api renders categories successfully", async () => {
 
   expect(category).toBeInTheDocument();
 });
+
+test("Shows loader when products is fetching", () => {
+  const useSelectorMock = jest
+    .spyOn(require("react-redux"), "useSelector")
+
+    .mockImplementation((selector: any) =>
+      selector({
+        categories: {
+          categories: [{ CategoriesId: 1, name: "Sports" }],
+          categoryLoading: true,
+        },
+      }),
+    );
+
+  renderCategories();
+
+  expect(screen.getByTestId("category-section-loader")).toBeInTheDocument();
+  useSelectorMock.mockRestore();
+});
+
+

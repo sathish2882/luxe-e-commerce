@@ -106,6 +106,7 @@ function Address() {
                 type="primary"
                 htmlType="submit"
                 block
+                aria-label="add address"
                 loading={loading}
                 className="mt-[30px]"
                 style={{ fontSize: "15px", fontFamily: "var(--font-body)" }}

@@ -60,7 +60,7 @@ function Login() {
       return () => clearInterval(interval);
     }
 
-    if (timer === 0) {
+    if (timer === 0 && step === 2) {
       setCanResend(true);
     }
   }, [timer, step]);
@@ -91,6 +91,7 @@ function Login() {
       } else if (response.data.otp_key) {
         setOtpKey(response.data.otp_key);
         setTimer(response?.data?.timer);
+        setCanResend(false);
         toast.success("OTP sent to your email");
         setStep(2);
       }
@@ -232,7 +233,7 @@ function Login() {
                 <Button
                   type="primary"
                   style={{ fontFamily: "var(--primary-font)" }}
-                  disabled={canResend}
+                  disabled={!canResend}
                   loading={loading}
                   onClick={handleResendOtp}
                   block
