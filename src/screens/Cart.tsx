@@ -319,6 +319,7 @@ function Cart() {
 
                           <button
                             type="button"
+                            aria-label="remove btn"
                             onClick={() => handleRemoveItem(item)}
                             className="text-red-500 hover:text-red-700 text-2xl font-semibold block mt-3 cursor-pointer"
                           >
@@ -414,7 +415,10 @@ function Cart() {
 
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-md">Total</span>
-                      <span className="font-bold text-md">
+                      <span
+                        aria-label="total amount"
+                        className="font-bold text-md"
+                      >
                         ₹ {cart.totalAmount}
                       </span>
                     </div>

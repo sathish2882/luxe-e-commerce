@@ -45,8 +45,16 @@ jest.mock("framer-motion", () => ({
   },
 }));
 
+jest.mock("antd", () => ({
+  ...jest.requireActual("antd"),
+  Pagination: ({ onChange }: any) => (
+    <button onClick={() => onChange(2)}>Next</button>
+  ),
+}));
+
 import { fetchProducts, fetchProductsByCategory } from "../redux/productSlice";
 import { fetchCategory } from "../redux/categorySlice";
+import userEvent from "@testing-library/user-event";
 
 const renderShop = () => {
   render(
@@ -60,6 +68,10 @@ const renderShop = () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+});
+
+beforeAll(() => {
+  window.scrollTo = jest.fn();
 });
 
 test("Shop renders correctly", () => {
@@ -81,6 +93,31 @@ test("Shop redux api renders products successfully", async () => {
   expect(items.length).toBeGreaterThan(0);
 });
 
+test("Shows loader when products is fetching", () => {
+  const useSelectorMock = jest
+    .spyOn(require("react-redux"), "useSelector")
+
+    .mockImplementation((selector: any) =>
+      selector({
+        products: {
+          products: [{ productId: 1, productName: "Phone" }],
+          isLoading: true,
+          totalCount: 20,
+          currentPage: 1,
+        },
+        categories: {
+          categories: [{ categoriesId: 90001, name: "Sports" }],
+          categoryLoading: false,
+        },
+      }),
+    );
+
+  renderShop();
+
+  expect(screen.getByTestId("shop-loader")).toBeInTheDocument();
+  useSelectorMock.mockRestore();
+});
+
 test("Shop redux api renders categories successfully", async () => {
   renderShop();
 
@@ -93,6 +130,31 @@ test("Shop redux api renders categories successfully", async () => {
   expect(category).toBeInTheDocument();
 });
 
+test("Shows loader when categories is fetching", () => {
+  const useSelectorMock = jest
+    .spyOn(require("react-redux"), "useSelector")
+
+    .mockImplementation((selector: any) =>
+      selector({
+        products: {
+          products: [{ productId: 1, productName: "Phone" }],
+          isLoading: false,
+          totalCount: 20,
+          currentPage: 1,
+        },
+        categories: {
+          categories: [{ categoriesId: 90001, name: "Sports" }],
+          categoryLoading: true,
+        },
+      }),
+    );
+
+  renderShop();
+
+  expect(screen.getByTestId("category-skeleton")).toBeInTheDocument();
+  useSelectorMock.mockRestore();
+});
+
 test("Shop redux api renders products by category", async () => {
   mockUseParams.mockReturnValue({ categoriesId: "90001" });
   renderShop();
@@ -103,4 +165,47 @@ test("Shop redux api renders products by category", async () => {
 
   const items = await screen.findAllByText("Product");
   expect(items.length).toBeGreaterThan(0);
+});
+
+test("Clicking All button navigates to /shop", () => {
+  const mockNavigate = jest.fn();
+
+  jest
+    .spyOn(require("react-router-dom"), "useNavigate")
+    .mockReturnValue(mockNavigate);
+
+  renderShop();
+
+  const allBtn = screen.getByText(/all/i);
+  allBtn.click();
+
+  expect(mockNavigate).toHaveBeenCalledWith("/shop");
+});
+
+test("Clicking category navigates correctly ", () => {
+  const mockNavigate = jest.fn();
+
+  jest
+    .spyOn(require("react-router-dom"), "useNavigate")
+    .mockReturnValue(mockNavigate);
+
+  renderShop();
+
+  const categoryBtn = screen.getByText(/sports/i);
+  categoryBtn.click();
+
+  expect(mockNavigate).toHaveBeenCalledWith("/shop/90001");
+});
+
+test("Pagination calls fetchProducts on page change", async () => {
+  mockUseParams.mockReturnValue({});
+  renderShop();
+
+  const nextBtn = screen.getByText("Next");
+
+  await userEvent.click(nextBtn);
+
+  await waitFor(() => {
+    expect(fetchProducts).toHaveBeenCalledWith(2);
+  });
 });
