@@ -101,3 +101,43 @@ test("shows error when signup fails", async () => {
 
   expect(signupApi).toHaveBeenCalled();
 });
+
+test("renders login link", () => {
+  renderSignup();
+
+  expect(screen.getByRole("link", { name: /login/i })).toHaveAttribute(
+    "href",
+    "/login",
+  );
+});
+
+test("shows invalid email validation", async () => {
+  renderSignup();
+
+  await userEvent.type(screen.getByLabelText(/^username$/i), "sathish");
+  await userEvent.type(screen.getByLabelText(/^email$/i), "invalid-email");
+  await userEvent.type(screen.getByLabelText(/^password$/i), "sk@1234");
+  await userEvent.type(screen.getByLabelText(/^confirm password$/i), "sk@1234");
+
+  await userEvent.click(screen.getByRole("button", { name: /sign up/i }));
+
+  expect(await screen.findByText(/invalid email/i)).toBeInTheDocument();
+});
+
+test("shows password min length validation", async () => {
+  renderSignup();
+
+  await userEvent.type(screen.getByLabelText(/^username$/i), "sathish");
+  await userEvent.type(
+    screen.getByLabelText(/^email$/i),
+    "sathish19222978sk@gmail.com",
+  );
+  await userEvent.type(screen.getByLabelText(/^password$/i), "123");
+  await userEvent.type(screen.getByLabelText(/^confirm password$/i), "123");
+
+  await userEvent.click(screen.getByRole("button", { name: /sign up/i }));
+
+  expect(
+    await screen.findByText(/password must be at least 6 characters/i),
+  ).toBeInTheDocument();
+});

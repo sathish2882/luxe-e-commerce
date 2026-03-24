@@ -77,7 +77,7 @@ function SearchResults() {
     <section className="px-8 sm:px-10 xl:px-20 py-15">
       {loading && (
         <div className="flex justify-center my-4">
-          <div className="loader"></div>
+          <div data-testid="search-loader" className="loader"></div>
         </div>
       )}
 

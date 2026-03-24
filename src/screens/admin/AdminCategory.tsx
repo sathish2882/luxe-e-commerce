@@ -181,6 +181,7 @@ function AdminCategory() {
         <Button
           type="primary"
           onClick={handleAdd}
+          aria-label="add category"
           style={{ marginBottom: "20px" }}
         >
           Add Category
@@ -189,7 +190,7 @@ function AdminCategory() {
 
       {categoryLoading || loading ? (
         <div className="flex justify-center my-4">
-          <div className="loader"></div>
+          <div data-testid="category-table-loader" className="loader"></div>
         </div>
       ) : (
         <TableComponent columns={columns} data={tableData} />
@@ -270,6 +271,7 @@ function AdminCategory() {
                     type="primary"
                     htmlType="submit"
                     block
+                    aria-label="add category form"
                     loading={loading}
                     className="mt-[30px]"
                     style={{ fontSize: "15px", fontFamily: "var(--font-body)" }}

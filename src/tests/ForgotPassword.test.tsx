@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import userEvent from "@testing-library/user-event";
@@ -7,11 +7,13 @@ jest.mock("../services/authApi", () => ({
   forgotPasswordApi: jest.fn(),
   verifyOtpApi: jest.fn(),
   resetPasswordApi: jest.fn(),
+  resendOtpApi: jest.fn(),
 }));
 import {
   forgotPasswordApi,
   verifyOtpApi,
   resetPasswordApi,
+  resendOtpApi,
 } from "../services/authApi";
 
 const renderForgotPassword = () => {
@@ -317,4 +319,96 @@ test("shows error when login fails for reset form", async () => {
 
   const calledArg = (resetPasswordApi as jest.Mock).mock.calls[0][0];
   expect(calledArg.get("new_password")).toBe("sk@1234");
+});
+
+test("shows otp validation for invalid otp", async () => {
+  (forgotPasswordApi as jest.Mock).mockResolvedValue({
+    data: { otp_key: "otp-key-1" },
+  });
+
+  renderForgotPassword();
+
+  await userEvent.type(
+    screen.getByLabelText(/^email$/i),
+    "sathish19222978sk@gmail.com",
+  );
+
+  await userEvent.click(screen.getByRole("button", { name: /send otp/i }));
+
+  await userEvent.type(await screen.findByLabelText(/enter otp/i), "123");
+
+  await userEvent.click(screen.getByRole("button", { name: /verify otp/i }));
+
+  expect(await screen.findByText(/otp must be 6 digits/i)).toBeInTheDocument();
+});
+
+test("resend otp button is disabled until timer expires", async () => {
+  (forgotPasswordApi as jest.Mock).mockResolvedValue({
+    data: { otp_key: "otp-key-1" },
+  });
+
+  renderForgotPassword();
+
+  await userEvent.type(
+    screen.getByLabelText(/^email$/i),
+    "sathish19222978sk@gmail.com",
+  );
+
+  await userEvent.click(screen.getByRole("button", { name: /send otp/i }));
+
+  const resendButton = await screen.findByRole("button", {
+    name: /resend otp/i,
+  });
+
+  expect(resendButton).toBeDisabled();
+  expect(resendOtpApi).not.toHaveBeenCalled();
+});
+
+test("renders back to login button", () => {
+  renderForgotPassword();
+
+  expect(
+    screen.getByRole("button", { name: /back to login/i }),
+  ).toBeInTheDocument();
+});
+
+test("resends otp after timer expires", async () => {
+  jest.useFakeTimers();
+
+  (forgotPasswordApi as jest.Mock).mockResolvedValue({
+    data: { otp_key: "otp-key-1" },
+  });
+
+  (resendOtpApi as jest.Mock).mockResolvedValue({
+    data: { success: true },
+  });
+
+  renderForgotPassword();
+
+  fireEvent.change(screen.getByLabelText(/^email$/i), {
+    target: { value: "sathish19222978sk@gmail.com" },
+  });
+
+  fireEvent.click(screen.getByRole("button", { name: /send otp/i }));
+
+  const resendButton = await screen.findByRole("button", {
+    name: /resend otp/i,
+  });
+
+  expect(resendButton).toBeDisabled();
+
+  act(() => {
+    jest.advanceTimersByTime(600000);
+  });
+
+  expect(resendButton).not.toBeDisabled();
+
+  fireEvent.click(resendButton);
+
+  expect(resendOtpApi).toHaveBeenCalled();
+
+  const calledArg = (resendOtpApi as jest.Mock).mock.calls[0][0];
+  expect(calledArg.get("reset_key")).toBe("otp-key-1");
+
+  jest.useRealTimers();
 });

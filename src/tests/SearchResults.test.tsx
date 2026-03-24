@@ -34,8 +34,7 @@ const renderSearchResults = () => {
   );
 };
 
-
-test("Search products api renders correctly", async() => {
+test("Search products api renders correctly", async () => {
   (getSearchProducts as jest.Mock).mockResolvedValue([{ productId: 1 }]);
   (getProductDetails as jest.Mock).mockResolvedValue(() => ({
     productId: 1,
@@ -44,8 +43,43 @@ test("Search products api renders correctly", async() => {
 
   renderSearchResults();
 
-  await screen.findByText(/product/i)
+  await screen.findByText(/product/i);
 
   expect(getSearchProducts).toHaveBeenCalled();
   expect(getProductDetails).toHaveBeenCalled();
 });
+
+test("calls search API with the query from search params", async () => {
+  (getSearchProducts as jest.Mock).mockResolvedValue([{ productId: 1 }]);
+  (getProductDetails as jest.Mock).mockResolvedValue({
+    productId: 1,
+    productName: "Test Product",
+  });
+
+  renderSearchResults();
+
+  await screen.findByText(/product/i);
+
+  expect(getSearchProducts).toHaveBeenCalledWith("phone");
+  expect(getProductDetails).toHaveBeenCalledWith(1);
+});
+
+test("shows loader while search results are loading", async () => {
+  (getSearchProducts as jest.Mock).mockImplementation(() => new Promise(() => {}));
+
+  renderSearchResults();
+
+  expect(screen.getByTestId("search-loader")).toBeInTheDocument();
+});
+
+test("does not render products when request fails", async () => {
+  (getSearchProducts as jest.Mock).mockRejectedValue({
+    response: { data: { detail: "Search failed" } },
+  });
+
+  renderSearchResults();
+
+  expect(await screen.findByText(/search failed!/i)).toBeInTheDocument();
+  expect(screen.queryByText(/product/i)).not.toBeInTheDocument();
+});
+

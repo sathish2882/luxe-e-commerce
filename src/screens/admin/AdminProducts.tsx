@@ -184,6 +184,7 @@ function AdminProducts() {
         <Button
           type="primary"
           onClick={handleAdd}
+          aria-label="add product"
           style={{ marginBottom: "20px" }}
         >
           Add Product
@@ -192,7 +193,7 @@ function AdminProducts() {
 
       {isLoading || loading ? (
         <div className="flex justify-center my-4">
-          <div className="loader"></div>
+          <div data-testid="products-table-loader" className="loader"></div>
         </div>
       ) : (
         <TableComponent
@@ -312,6 +313,7 @@ function AdminProducts() {
                     type="primary"
                     htmlType="submit"
                     block
+                    aria-label="add product form"
                     loading={loading}
                     className="mt-[5px]"
                     style={{ fontSize: "15px", fontFamily: "var(--font-body)" }}

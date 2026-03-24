@@ -40,7 +40,7 @@ function Orders() {
 
       {ordersLoading && (
         <div className="flex justify-center my-4">
-          <div className="loader"></div>
+          <div data-testid="orders-loader" className="loader"></div>
         </div>
       )}
 

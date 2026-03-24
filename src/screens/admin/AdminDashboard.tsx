@@ -62,7 +62,7 @@ function AdminDashboard() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white shadow-lg rounded-2xl p-6 mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
-          Welcome Back, {user?.username.toUpperCase()} 👋
+          Welcome Back, {user?.username?.toUpperCase()} 👋
         </h1>
 
         <p className="text-gray-500 mt-2">
