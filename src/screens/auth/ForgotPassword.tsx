@@ -141,7 +141,6 @@ function ForgotPassword() {
 
       formData.append("otp_key", otpKey);
       formData.append("new_password", values.password);
-      console.log(otpKey);
 
       await resetPasswordApi(formData);
       navigate("/", { replace: true });

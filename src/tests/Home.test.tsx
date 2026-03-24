@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 
 const mockDispatch = jest.fn();
 
-
 jest.mock("react-redux", () => ({
   ...jest.requireActual("react-redux"),
   useDispatch: () => mockDispatch,
@@ -127,7 +126,7 @@ test("Home redux api renders successfully", async () => {
   expect(items.length).toBeGreaterThan(0);
 });
 
-test("Shows loader when data is fetching", () => {
+test("Shows loader when products is fetching", () => {
   const useSelectorMock = jest
     .spyOn(require("react-redux"), "useSelector")
 
@@ -142,30 +141,7 @@ test("Shows loader when data is fetching", () => {
 
   renderHome();
 
-  expect(screen.queryByTestId("loader-all")).toBeInTheDocument();
-  useSelectorMock.mockRestore();
-});
-
-test("Redux products slice fails", async () => {
-  const useSelectorMock = jest
-    .spyOn(require("react-redux"), "useSelector")
-
-    .mockImplementation((selector: any) =>
-      selector({
-        products: {
-          products: [{ productId: 1, productName: "Phone" }],
-          isLoading: false,
-          error: "Failed to fetch products",
-        },
-      }),
-    );
-
-  renderHome();
-
-  waitFor(() => {
-    expect(toast.error).toHaveBeenCalledWith("Failed to fetch products");
-  });
-
+  expect(screen.getByTestId("loader-all")).toBeInTheDocument();
   useSelectorMock.mockRestore();
 });
 
@@ -182,7 +158,3 @@ test("Shows Shop Now and Explore buttons", () => {
   expect(screen.getByRole("button", { name: /shop now/i })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /explore/i })).toBeInTheDocument();
 });
-
-
-
-

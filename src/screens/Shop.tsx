@@ -75,7 +75,7 @@ function Shop() {
         </p>
 
         {categoryLoading ? (
-          <div className="flex items-center flex-wrap gap-3">
+          <div data-testid="category-skeleton" className="flex items-center flex-wrap gap-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <Skeleton.Button
                 key={index}
@@ -114,7 +114,7 @@ function Shop() {
 
         {isLoading && (
           <div className="flex justify-center my-4">
-            <div className="loader"></div>
+            <div data-testid="shop-loader" className="loader"></div>
           </div>
         )}
 
